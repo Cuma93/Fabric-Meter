@@ -1,0 +1,8 @@
+# cancella tutti i file che terminano per .txt
+/*.txt
+
+# cancella tutti i file che terminano per .xml
+/*.xml
+
+#fa' un'eccezione 
+!cascade.xml
