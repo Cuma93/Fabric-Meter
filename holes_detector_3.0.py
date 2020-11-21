@@ -1,5 +1,6 @@
 import cv2
 
+#inizializza una lista vuota
 numbers = []
 
 fabric_cascade = cv2.CascadeClassifier('C:\\Users\\nk84\\OneDrive\\Documents\\Fabric Meter\\classifier\\cascade.xml') # We load the cascade for the face.
