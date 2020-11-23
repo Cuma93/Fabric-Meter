@@ -1,0 +1,25 @@
+#PER INIZIALIZZARE
+# dentro progetto
+git init
+git remote add origin https://github.com/casonatia/prj.git
+git add .
+git commit -m 'first commit'
+git branch -M main
+#
+#
+#
+#COMANDI PER MODIFICARE
+#modifico un file
+git add .
+git commit -m 'messaggio'
+git push
+#
+#
+#
+#SCARICARE PER LA PRIMA VOLTA REPO SU RASPBERRY
+git clone https://username@github.com/username/repo_name
+#
+# 
+# AGGIORNARE LOCALE CON REPO 
+# dentro la cartella 
+git pull
