@@ -83,6 +83,33 @@ def stepC (stepfinal, puntatoreposizione):
         else:
             pos[puntatoreposizione] = pos[puntatoreposizione] - 1
 
+# Funzione RESET motori
+
+def stepR (steptypeR):    # Steptype è il metodo di reset. Eventualmente si può fare un reset diverso facendo andare a zero i motori in modo diverso. 
+    GPIO.output(dirP[0], GPIO.LOW)
+    GPIO.output(dirP[1], GPIO.LOW)
+    GPIO.output(dirP[2], GPIO.LOW)
+    GPIO.output(dirP[3], GPIO.LOW)
+
+    while (GPIO.input(ProxyEstensore, GPIO.HIGH) = True:
+          GPIO.output(stepperP(0), GPIO.HIGH)
+          time.sleep(micro/1000000)
+          GPIO.output(stepperP(0), GPIO.LOW)
+          time.sleep(micro/1000000)
+    while (GPIO.input(ProxyAllineamento, GPIO.HIGH) = True:
+          GPIO.output(stepperP(1), GPIO.HIGH)
+          time.sleep(micro/1000000)
+          GPIO.output(stepperP(1), GPIO.LOW)
+          time.sleep(micro/1000000)
+
+    pos[0]=0
+    pos[1]=100
+
+#______________________________________________________________________________________
+#
+# AVVIO CICLO MACCHINA
+#______________________________________________________________________________________
+
 #stepC(100, 0)
 #setup2()
 #moveStep2(0,3,500)  #il motore impiega 512 step/giro
