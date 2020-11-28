@@ -57,16 +57,16 @@ def setup2():
 
 
 #alimentazione in sequenza delle bobine del motore. 
-def moveOnePeriodFocus(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPinsFocus[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPinsFocus[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
+# def moveOnePeriodFocus(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPinsFocus[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPinsFocus[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
         
         
 def moveOnePeriod2(direction,ms):
@@ -81,100 +81,100 @@ def moveOnePeriod2(direction,ms):
         time.sleep(ms*0.001)
         
 
-def moveOnePeriod3(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPins3[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPins3[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
+# def moveOnePeriod3(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPins3[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPins3[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
         
 
-def moveOnePeriod4(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPins4[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPins4[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
+# def moveOnePeriod4(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPins4[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPins4[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
         
 
-def moveOnePeriod5(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPins5[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPins5[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
+# def moveOnePeriod5(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPins5[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPins5[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
 
-def moveOnePeriod6(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPins6[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPins6[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
-
-
-def moveOnePeriod7(direction,ms):
-    for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
-        for i in range(0,4,1):  #assign to each pin, a total of 4 pins
-            if (direction == 1):#power supply order clockwise
-                GPIO.output(motorPins7[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-            else :              #power supply order anticlockwise
-                GPIO.output(motorPins7[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
-        if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
-            ms = 3
-        time.sleep(ms*0.001)
+# def moveOnePeriod6(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPins6[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPins6[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
 
 
+# def moveOnePeriod7(direction,ms):
+#     for j in range(0,4,1):      #cycle for power supply order [range(numero start, numero stop, incremento)]
+#         for i in range(0,4,1):  #assign to each pin, a total of 4 pins
+#             if (direction == 1):#power supply order clockwise
+#                 GPIO.output(motorPins7[i],((CCWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#             else :              #power supply order anticlockwise
+#                 GPIO.output(motorPins7[i],((CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW))
+#         if(ms<3):       #the delay can not be less than 3ms, otherwise it will exceed speed limit of the motor
+#             ms = 3
+#         time.sleep(ms*0.001)
 
-#azionamento del motore
-def moveStepFocus(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriodFocus(direction, ms)
+
+
+# #azionamento del motore
+# def moveStepFocus(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriodFocus(direction, ms)
         
 def moveStep2(direction, ms, steps):
     for i in range(steps):
         moveOnePeriod2(direction, ms)
 
-def moveStep3(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriod3(direction, ms)
+# def moveStep3(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriod3(direction, ms)
 
-def moveStep4(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriod4(direction, ms)
+# def moveStep4(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriod4(direction, ms)
 
-def moveStep5(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriod5(direction, ms)
+# def moveStep5(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriod5(direction, ms)
 
-def moveStep6(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriod6(direction, ms)
+# def moveStep6(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriod6(direction, ms)
 
-def moveStep7(direction, ms, steps):
-    for i in range(steps):
-        moveOnePeriod7(direction, ms)
+# def moveStep7(direction, ms, steps):
+#     for i in range(steps):
+#         moveOnePeriod7(direction, ms)
 
 
 
 def motorStop():
     for i in range(0,4,1):
-        GPIO.output(motorPinsFocus[i],GPIO.LOW)
+        GPIO.output(motorPins2[i],GPIO.LOW)
 
 
 def destroy():

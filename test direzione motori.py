@@ -1,8 +1,8 @@
 import os
 import time
 import RPi.GPIO as GPIO
-#import yaml
-#from StepperLib import *
+import yaml
+from StepperLib import *
 
 
 GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
@@ -32,7 +32,7 @@ laser = 16
 
 
 # Setup GPIO input/output
-#setup2() # Setup del mini step (vedi libreria StepperLib.py)
+setup2() # Setup del mini step (vedi libreria StepperLib.py)
 GPIO.setup(31, GPIO.OUT)
 GPIO.setup(29, GPIO.OUT)
 GPIO.setup(36, GPIO.OUT)
@@ -79,7 +79,7 @@ pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_v
 
 # Funzione di controllo motori step
 
-def stepC (stepfinal, puntatoreposizione):
+def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, numero identificativo motore) 
     dirPin = dirP[puntatoreposizione]
     stepperPin = stepperP[puntatoreposizione]
     micro = microP[puntatoreposizione]
@@ -115,6 +115,11 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     GPIO.output(dirP[2], GPIO.LOW)
     GPIO.output(dirP[3], GPIO.LOW)
     
+    # Posizione 0 ---> 4 motori estensione
+    # Posizione 1 ---> motore tensionatore
+    # Posizione 2 ---> motore allineamento
+    # Posizione 3 ---> motore videocamera
+    
     microR = (1000, 150, 150, 200)  # Setta la velocità di reset
     micro0 = microR[0]
     micro1 = microR[1]
@@ -133,34 +138,42 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           time.sleep(micro1/1000000)
           GPIO.output(stepperP[1], GPIO.LOW)
           time.sleep(micro1/1000000)
-        #while (GPIO.input(proxy_allineamento) == True):
-         # GPIO.output(stepperP(2), GPIO.HIGH)
-         # time.sleep(microR[2]/1000000)
-         # GPIO.output(stepperP(2), GPIO.LOW)
-         # time.sleep(microR[2]/1000000)
+        while (GPIO.input(proxy_allineamento) == True):
+          GPIO.output(stepperP[2], GPIO.HIGH)
+          time.sleep(microR[2]/1000000)
+          GPIO.output(stepperP[2], GPIO.LOW)
+          time.sleep(microR[2]/1000000)
         while (GPIO.input(proxy_videocamera) == True):
           GPIO.output(stepperP[3], GPIO.HIGH)
           time.sleep(micro3/1000000)
           GPIO.output(stepperP[3], GPIO.LOW)
           time.sleep(micro3/1000000)
-        #while (GPIO.input(proxy_focus) == True):
-         # moveStep2(0,3,1)
+        while (GPIO.input(proxy_focus) == True):
+          moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
         
     pos[0]=0
     pos[1]=0
+    pos[2]=0
     pos[3]=0
     
-    print("Il sistema è pronto.")
+    #print("Il sistema è pronto.")
 #______________________________________________________________________________________
 #
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
 
-#stepR(0)
-#time.sleep(0.5)
-#stepC(130000, 3)
-#print("Il motore ha eseguito " + str(pos[1]) + " passi.")
 
+GPIO.output(dirP[2], GPIO.HIGH)
+while (GPIO.input(proxy_allineamento) == True):
+    GPIO.output(stepperP[2], GPIO.HIGH)
+    time.sleep(5000/1000000)
+    GPIO.output(stepperP[2], GPIO.LOW)
+    time.sleep(5000/1000000)
+    pos[2] = pos[2] + 1
+
+print("Il motore ha eseguito " + str(pos[2]) + " passi.")
+stepC(615, 2)
+print("Il motore ha eseguito " + str(pos[2]) + " passi.")
 
 #moveStep2(0,3,500)  #il motore impiega 512 step/giro
 
