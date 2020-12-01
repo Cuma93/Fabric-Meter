@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import yaml
 from StepperLib import *
 import cv2
+import numpy as np
 
 
 
@@ -164,34 +165,14 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
 
-
-GPIO.output(dirP[2], GPIO.HIGH)
-while (GPIO.input(proxy_allineamento) == True):
-    GPIO.output(stepperP[2], GPIO.HIGH)
-    time.sleep(5000/1000000)
-    GPIO.output(stepperP[2], GPIO.LOW)
-    time.sleep(5000/1000000)
-    pos[2] = pos[2] + 1
-
-print("Il motore ha eseguito " + str(pos[2]) + " passi.")
-#stepC(288, 2)
-print("Il motore ha eseguito " + str(pos[2]) + " passi.")
-
-#moveStep2(0,3,500)  #il motore impiega 512 step/giro
-
-# stepC(0, 0)
-# stepC(100, 2)
-# GPIO.output(bobina_mobile, GPIO.LOW)
-# GPIO.output(bobina_fissa, GPIO.LOW)
-# for i in range (0, 10):
-#    GPIO.output(bobina_distensione, GPIO.HIGH)
-#     time.sleep(1/10)
-#     GPIO.output(bobina_distensione, GPIO.LOW)
-#     time.sleep(1/10)
-#     print("ha fatto" + str(i+1) + "cicli")
-
-#while (GPIO.input(proxy_distensori) == True):
-    #stepC(0,0)
-#print("Il sensore è stato attivato")
+cap = cv2.VideoCapture(0) # We turn the webcam on.
+while True:
+    ret,frame = cap.read()
+    cv2.imshow('preview',frame) # We display the outputs.
+    if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
+        #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
+        break # We stop the loop.
+cap.release() # We turn the webcam off.
+cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.a
 
 GPIO.cleanup()
