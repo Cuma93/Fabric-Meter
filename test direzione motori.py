@@ -165,13 +165,13 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 #______________________________________________________________________________________
 
 
-GPIO.output(dirP[2], GPIO.HIGH)
-while (GPIO.input(proxy_allineamento) == True):
-    GPIO.output(stepperP[2], GPIO.HIGH)
-    time.sleep(5000/1000000)
-    GPIO.output(stepperP[2], GPIO.LOW)
-    time.sleep(5000/1000000)
-    pos[2] = pos[2] + 1
+#GPIO.output(dirP[2], GPIO.HIGH)
+#while (GPIO.input(proxy_allineamento) == True):
+ #   GPIO.output(stepperP[2], GPIO.HIGH)
+  #  time.sleep(5000/1000000)
+  #  GPIO.output(stepperP[2], GPIO.LOW)
+  #  time.sleep(5000/1000000)
+  #  pos[2] = pos[2] + 1
 
 print("Il motore ha eseguito " + str(pos[2]) + " passi.")
 #stepC(288, 2)

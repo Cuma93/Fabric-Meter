@@ -35,7 +35,11 @@ laser = 16
 
 
 # Setup GPIO input/output
-setup2() # Setup del mini step (vedi libreria StepperLib.py)
+#setup2() # Setup del mini step (vedi libreria StepperLib.py)
+GPIO.setup(3, GPIO.OUT)
+GPIO.setup(5, GPIO.OUT)
+GPIO.setup(7, GPIO.OUT)
+GPIO.setup(8, GPIO.OUT)
 GPIO.setup(31, GPIO.OUT)
 GPIO.setup(29, GPIO.OUT)
 GPIO.setup(36, GPIO.OUT)
@@ -165,13 +169,26 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
 
-cap = cv2.VideoCapture(0) # We turn the webcam on.
-while True:
+count = 0
+cap = cv2.VideoCapture(1) # We turn the webcam on.
+
+for i in range(0,50):
+    stepC(500, 3)
+    time.sleep(0.5)
     ret,frame = cap.read()
-    cv2.imshow('preview',frame) # We display the outputs.
+    #cv2.startWindowThread()
+    #cv2.namedWindow("preview")
+    if ret == True:
+        cv2.imshow('preview',frame) # We display the outputs.
+        cv2.imwrite('/home/pi/Desktop/campionamento/capture_test_' + str(i+1) + '.jpg', frame)
+        print("l'immagine " + str(count+1) + " è stata salvata")
+        count = count + 1
+        
+    else:
+        print("Connection interrupted")
     if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
-        #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-        break # We stop the loop.
+            #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
+            break # We stop the loop.
 cap.release() # We turn the webcam off.
 cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.a
 
