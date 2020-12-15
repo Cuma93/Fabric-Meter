@@ -35,19 +35,19 @@ laser = 16
 
 # Setup GPIO input/output
 setup2() # Setup del mini step (vedi libreria StepperLib.py)
-GPIO.setup(31, GPIO.OUT)
-GPIO.setup(29, GPIO.OUT)
-GPIO.setup(36, GPIO.OUT)
-GPIO.setup(37, GPIO.OUT)
-GPIO.setup(40, GPIO.OUT)
-GPIO.setup(38, GPIO.OUT)
-GPIO.setup(35, GPIO.OUT)
-GPIO.setup(33, GPIO.OUT)
+GPIO.setup(31, GPIO.OUT, initial=0)
+GPIO.setup(29, GPIO.OUT, initial=0)
+GPIO.setup(36, GPIO.OUT, initial=0)
+GPIO.setup(37, GPIO.OUT, initial=0)
+GPIO.setup(40, GPIO.OUT, initial=0)
+GPIO.setup(38, GPIO.OUT, initial=0)
+GPIO.setup(35, GPIO.OUT, initial=0)
+GPIO.setup(33, GPIO.OUT, initial=0)
 
-
-GPIO.setup(bobina_mobile, GPIO.OUT)
-GPIO.setup(bobina_fissa, GPIO.OUT)
-GPIO.setup(bobina_distensione, GPIO.OUT)
+GPIO.setup(24, GPIO.OUT, initial=1)
+GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
+GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
+GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
 
 GPIO.setup(proxy_tensionatore, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_allineamento, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -173,9 +173,15 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
   #  time.sleep(5000/1000000)
   #  pos[2] = pos[2] + 1
 
-print("Il motore ha eseguito " + str(pos[2]) + " passi.")
+#print("Il motore ha eseguito " + str(pos[2]) + " passi.")
 #stepC(288, 2)
-print("Il motore ha eseguito " + str(pos[2]) + " passi.")
+#print("Il motore ha eseguito " + str(pos[2]) + " passi.")
+
+for i in range(0,10):
+    GPIO.output(bobina_distensione, GPIO.LOW)
+    time.sleep(0.027)
+    GPIO.output(bobina_distensione, GPIO.HIGH)
+    time.sleep(0.027)
 
 #moveStep2(0,3,500)  #il motore impiega 512 step/giro
 
