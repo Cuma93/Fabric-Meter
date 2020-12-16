@@ -8,7 +8,7 @@ with open('cfgMotorPins.yml') as cfg :    #importa il file di configurazione. Ve
     config = yaml.load(cfg, Loader=yaml.FullLoader)  #carica la configurazione
 
 #motorPinsFocus = config['motorPinsFocus'] #assegna alla variabile motorPins1 la lista di valori
-motorPins2 = config['motorPins2'] #assegna alla variabile motorPins2 la lista di valori
+motorPins2 = [3, 5, 7, 8] #assegna alla variabile motorPins2 la lista di valori
 #motorPins3 = config['motorPins3'] #assegna alla variabile motorPins3 la lista di valori
 #motorPins4 = config['motorPins4'] #assegna alla variabile motorPins4 la lista di valori
 #motorPins5 = config['motorPins5'] #assegna alla variabile motorPins5 la lista di valori
@@ -177,6 +177,8 @@ def motorStop():
         GPIO.output(motorPins2[i],GPIO.LOW)
 
 
-def destroy():
-    GPIO.cleanup()  #release GPIOs used chennels
+#def destroy():
+    #GPIO.cleanup()  #release GPIOs used chennels
     
+
+ 

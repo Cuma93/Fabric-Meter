@@ -44,7 +44,7 @@ GPIO.setup(38, GPIO.OUT, initial=0)
 GPIO.setup(35, GPIO.OUT, initial=0)
 GPIO.setup(33, GPIO.OUT, initial=0)
 
-GPIO.setup(24, GPIO.OUT, initial=1)
+#GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
 GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
@@ -71,8 +71,9 @@ inizio_distensione = 0
 inizio_tensionamento = 0
 inizio_allinemanento = 325
 inizio_videocamera = 0
+inizio_focus = 0
 
-pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera]   #contatore passi
+pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus]   #contatore passi
 
 #______________________________________________________________________________________
 #
@@ -122,7 +123,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     # Posizione 2 ---> motore allineamento
     # Posizione 3 ---> motore videocamera
     
-    microR = (1000, 150, 150, 200)  # Setta la velocità di reset
+    microR = (1000, 100, 100, 100)  # Setta la velocità di reset
     micro0 = microR[0]
     micro1 = microR[1]
     micro2 = microR[2]
@@ -140,11 +141,11 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           time.sleep(micro1/1000000)
           GPIO.output(stepperP[1], GPIO.LOW)
           time.sleep(micro1/1000000)
-        while (GPIO.input(proxy_allineamento) == True):
-          GPIO.output(stepperP[2], GPIO.HIGH)
-          time.sleep(microR[2]/1000000)
-          GPIO.output(stepperP[2], GPIO.LOW)
-          time.sleep(microR[2]/1000000)
+        #while (GPIO.input(proxy_allineamento) == True):
+         # GPIO.output(stepperP[2], GPIO.HIGH)
+         # time.sleep(microR[2]/1000000)
+         # GPIO.output(stepperP[2], GPIO.LOW)
+         # time.sleep(microR[2]/1000000)
         while (GPIO.input(proxy_videocamera) == True):
           GPIO.output(stepperP[3], GPIO.HIGH)
           time.sleep(micro3/1000000)
@@ -157,12 +158,21 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     pos[1]=0
     pos[2]=0
     pos[3]=0
+    pos[4]=0
     
     #print("Il sistema è pronto.")
 #______________________________________________________________________________________
 #
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
+stepR(0)
+#moveStep2(0,8,20)
+#count = 20
+#while (GPIO.input(proxy_focus) == True):
+#    moveStep2(0,8,1)
+#    count = count + 1
+#print("Il focus ha una corsa di: " + str(count) + ' steps.') 
+#stepR(0)
 
 
 #GPIO.output(dirP[2], GPIO.HIGH)
@@ -173,31 +183,6 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
   #  time.sleep(5000/1000000)
   #  pos[2] = pos[2] + 1
 
-#print("Il motore ha eseguito " + str(pos[2]) + " passi.")
-#stepC(288, 2)
-#print("Il motore ha eseguito " + str(pos[2]) + " passi.")
 
-for i in range(0,10):
-    GPIO.output(bobina_distensione, GPIO.LOW)
-    time.sleep(0.027)
-    GPIO.output(bobina_distensione, GPIO.HIGH)
-    time.sleep(0.027)
-
-#moveStep2(0,3,500)  #il motore impiega 512 step/giro
-
-# stepC(0, 0)
-# stepC(100, 2)
-# GPIO.output(bobina_mobile, GPIO.LOW)
-# GPIO.output(bobina_fissa, GPIO.LOW)
-# for i in range (0, 10):
-#    GPIO.output(bobina_distensione, GPIO.HIGH)
-#     time.sleep(1/10)
-#     GPIO.output(bobina_distensione, GPIO.LOW)
-#     time.sleep(1/10)
-#     print("ha fatto" + str(i+1) + "cicli")
-
-#while (GPIO.input(proxy_distensori) == True):
-    #stepC(0,0)
-#print("Il sensore è stato attivato")
 
 GPIO.cleanup()

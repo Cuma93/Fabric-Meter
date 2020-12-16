@@ -31,6 +31,7 @@ laser = 16
 
 
 # Setup GPIO input/output
+setup2()
 GPIO.setup(31, GPIO.OUT)
 GPIO.setup(29, GPIO.OUT)
 GPIO.setup(36, GPIO.OUT)
