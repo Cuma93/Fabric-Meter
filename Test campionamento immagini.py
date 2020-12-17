@@ -4,7 +4,6 @@ import RPi.GPIO as GPIO
 import yaml
 from StepperLib import *
 import cv2
-import numpy as np
 
 
 
@@ -35,24 +34,20 @@ laser = 16
 
 
 # Setup GPIO input/output
-#setup2() # Setup del mini step (vedi libreria StepperLib.py)
-GPIO.setup(3, GPIO.OUT)
-GPIO.setup(5, GPIO.OUT)
-GPIO.setup(7, GPIO.OUT)
-GPIO.setup(8, GPIO.OUT)
-GPIO.setup(31, GPIO.OUT)
-GPIO.setup(29, GPIO.OUT)
-GPIO.setup(36, GPIO.OUT)
-GPIO.setup(37, GPIO.OUT)
-GPIO.setup(40, GPIO.OUT)
-GPIO.setup(38, GPIO.OUT)
-GPIO.setup(35, GPIO.OUT)
-GPIO.setup(33, GPIO.OUT)
+setup2() # Setup del mini step (vedi libreria StepperLib.py)
+GPIO.setup(31, GPIO.OUT, initial=0)
+GPIO.setup(29, GPIO.OUT, initial=0)
+GPIO.setup(36, GPIO.OUT, initial=0)
+GPIO.setup(37, GPIO.OUT, initial=0)
+GPIO.setup(40, GPIO.OUT, initial=0)
+GPIO.setup(38, GPIO.OUT, initial=0)
+GPIO.setup(35, GPIO.OUT, initial=0)
+GPIO.setup(33, GPIO.OUT, initial=0)
 
-
-GPIO.setup(bobina_mobile, GPIO.OUT)
-GPIO.setup(bobina_fissa, GPIO.OUT)
-GPIO.setup(bobina_distensione, GPIO.OUT)
+#GPIO.setup(24, GPIO.OUT, initial=1)
+GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
+GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
+GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
 
 GPIO.setup(proxy_tensionatore, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_allineamento, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -76,8 +71,9 @@ inizio_distensione = 0
 inizio_tensionamento = 0
 inizio_allinemanento = 325
 inizio_videocamera = 0
+inizio_focus = 0
 
-pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera]   #contatore passi
+pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus]   #contatore passi
 
 #______________________________________________________________________________________
 #
@@ -127,7 +123,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     # Posizione 2 ---> motore allineamento
     # Posizione 3 ---> motore videocamera
     
-    microR = (1000, 150, 150, 200)  # Setta la velocità di reset
+    microR = (1000, 100, 100, 100)  # Setta la velocità di reset
     micro0 = microR[0]
     micro1 = microR[1]
     micro2 = microR[2]
@@ -145,11 +141,11 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           time.sleep(micro1/1000000)
           GPIO.output(stepperP[1], GPIO.LOW)
           time.sleep(micro1/1000000)
-        while (GPIO.input(proxy_allineamento) == True):
-          GPIO.output(stepperP[2], GPIO.HIGH)
-          time.sleep(microR[2]/1000000)
-          GPIO.output(stepperP[2], GPIO.LOW)
-          time.sleep(microR[2]/1000000)
+        #while (GPIO.input(proxy_allineamento) == True):
+         # GPIO.output(stepperP[2], GPIO.HIGH)
+         # time.sleep(microR[2]/1000000)
+         # GPIO.output(stepperP[2], GPIO.LOW)
+         # time.sleep(microR[2]/1000000)
         while (GPIO.input(proxy_videocamera) == True):
           GPIO.output(stepperP[3], GPIO.HIGH)
           time.sleep(micro3/1000000)
@@ -162,6 +158,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     pos[1]=0
     pos[2]=0
     pos[3]=0
+    pos[4]=0
     
     #print("Il sistema è pronto.")
 #______________________________________________________________________________________
@@ -170,22 +167,26 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 #______________________________________________________________________________________
 
 count = 0
-cap = cv2.VideoCapture(1) # We turn the webcam on.
+cap = cv2.VideoCapture(0) # We turn the webcam on.
 
-for i in range(0,50):
-    stepC(500, 3)
-    time.sleep(0.5)
+while True:
+    #stepC(500, 3)
+    #time.sleep(0.5)
     ret,frame = cap.read()
+    height, width, _ = frame.shape
+    canvas1 = cv2.line(frame,(round(width/2), 0),(round(width/2), height),(0,255,0),1)  # linea verticale
+    canvas2 = cv2.line(canvas1,(0, round(height/2)),(width, round(height/2)),(0,255,0),1)   # linea orizzonatale
     #cv2.startWindowThread()
     #cv2.namedWindow("preview")
-    if ret == True:
+    cv2.imshow('preview',canvas2)
+    '''if ret == True:
         cv2.imshow('preview',frame) # We display the outputs.
-        cv2.imwrite('/home/pi/Desktop/campionamento/capture_test_' + str(i+1) + '.jpg', frame)
-        print("l'immagine " + str(count+1) + " è stata salvata")
+        #cv2.imwrite('/home/pi/Desktop/campionamento/capture_test_' + str(i+1) + '.jpg', frame)
+        #print("l'immagine " + str(count+1) + " è stata salvata")
         count = count + 1
         
     else:
-        print("Connection interrupted")
+        print("Connection interrupted")'''
     if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
             #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
             break # We stop the loop.
