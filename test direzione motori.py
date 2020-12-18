@@ -44,7 +44,7 @@ GPIO.setup(38, GPIO.OUT, initial=0)
 GPIO.setup(35, GPIO.OUT, initial=0)
 GPIO.setup(33, GPIO.OUT, initial=0)
 
-#GPIO.setup(24, GPIO.OUT, initial=1)
+GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
 GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
@@ -68,7 +68,7 @@ microP = (10000, 50, 5000, 200)  # Tempo in microsecondi tra due step
 
 # Posizione iniziale motore in step
 inizio_distensione = 0
-inizio_tensionamento = 0
+inizio_tensionamento = 10000
 inizio_allinemanento = 325
 inizio_videocamera = 0
 inizio_focus = 0
@@ -165,7 +165,26 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 #
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
-stepR(0)
+GPIO.output(bobina_fissa, GPIO.LOW)
+#GPIO.output(bobina_mobile, GPIO.LOW)
+#GPIO.output(bobina_distensione, GPIO.LOW)
+
+
+#stepC(0, 1)
+
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.HIGH)
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.LOW)
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.HIGH)
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.LOW)
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.HIGH)
+time.sleep(2)
+GPIO.output(bobina_fissa, GPIO.LOW)
+#GPIO.output(bobina_fissa, GPIO.LOW)
 #moveStep2(0,8,20)
 #count = 20
 #while (GPIO.input(proxy_focus) == True):
