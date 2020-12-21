@@ -1,6 +1,7 @@
 from setting import *
 from matplotlib import pyplot as plt
 
+GPIO.output(bobina_distensione, GPIO.LOW)
 
 cap = cv2.VideoCapture(0) # We turn the webcam on.
 while True:

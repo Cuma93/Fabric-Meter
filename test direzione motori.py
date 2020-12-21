@@ -173,7 +173,7 @@ GPIO.output(bobina_fissa, GPIO.LOW)
 #stepC(0, 1)
 
 time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.HIGH)
+GPIO.output(bobina_bobina_distensione, GPIO.HIGH)
 time.sleep(2)
 GPIO.output(bobina_fissa, GPIO.LOW)
 time.sleep(2)
