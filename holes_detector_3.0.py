@@ -9,6 +9,7 @@ edge_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/edge classif
 
 def detect(gray, frame):  #open cv prende in ingresso solo l'immagine in bianco e nero e non un video
     holes = hole_cascade.detectMultiScale(gray, 1.3, 5)
+    print (len(holes))
    
     
     for (x,y,w,h) in holes:
@@ -71,14 +72,12 @@ while True: # We repeat infinitely (until break):
     cv2.putText(frame, "HOLES COUNTER: ", (15,30), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
     cv2.circle(frame,(int(width/2), int(height/2)), 10, (0,255,0), 2)
     
-    # applicazione filtri
-    median_1 = cv2.medianBlur(frame, 9)
-    median_2 = cv2.medianBlur(median_1, 9)
-    median_3 = cv2.medianBlur(median_2, 9)
-    unsharp_4 = unsharp_mask(median_3, 13)
+    '''# applicazione filtri
+    #   median_3 = cv2.medianBlur(frame, 27)
+    #   unsharp_4 = unsharp_mask(median_3, 13)
     # cambio di colore pixel
-    image = unsharp_4.copy()
-    hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV) 
+    #    image = unsharp_4.copy()
+    #     hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV) 
     grey_lo=np.array([50,50,50])
     grey_hi=np.array([254,254,254])
     mask=cv2.inRange(hsv,grey_lo,grey_hi)
