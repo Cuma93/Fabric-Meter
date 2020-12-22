@@ -1,14 +1,14 @@
-import cv2
+from setting import *
 
 #inizializza una lista vuota
 numbers = []
 
-fabric_cascade = cv2.CascadeClassifier('C:\\Users\\nk84\\OneDrive\\Documents\\Fabric Meter\\classifier\\cascade.xml') # We load the cascade for the face.
-edge_cascade = cv2.CascadeClassifier('C:\\Users\\nk84\\OneDrive\\Documents\\Fabric Meter\\edge detector\\classifier\\cascade.xml') # We load the cascade for the face.
+hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml') # We load the cascade for the face.
+edge_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/edge classifier/classifier/cascade.xml') # We load the cascade for the face.
 
 
 def detect(gray, frame):  #open cv prende in ingresso solo l'immagine in bianco e nero e non un video
-    holes = fabric_cascade.detectMultiScale(gray, 1.3, 5)
+    holes = hole_cascade.detectMultiScale(gray, 1.3, 5)
    
     
     for (x,y,w,h) in holes:
@@ -21,7 +21,7 @@ def detect(gray, frame):  #open cv prende in ingresso solo l'immagine in bianco 
         
         
         cv2.line(frame,(500, 0),(500, height),(0,0,255),2)  #traccia la linea per il contatore. Le parentesi sono le cordinate. Il centro è nell angolo alto a sx incremento è basso dx.  
-        cv2.putText(frame, str(len(numbers)),(300, 30), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
+        #cv2.putText(frame, str(len(numbers)),(300, 30), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
         cv2.rectangle(frame, (x,y), (x+w, y+h), (255, 0, 0), 2)
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = frame[y:y+h, x:x+w]
