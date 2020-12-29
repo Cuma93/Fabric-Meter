@@ -44,10 +44,10 @@ GPIO.setup(38, GPIO.OUT, initial=0)
 GPIO.setup(35, GPIO.OUT, initial=0)
 GPIO.setup(33, GPIO.OUT, initial=0)
 
-GPIO.setup(24, GPIO.OUT, initial=1)
+GPIO.setup(24, GPIO.OUT, initial=1 )
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
-GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
+GPIO.setup(bobina_distensione, GPIO.OUT, initial=0)
 
 GPIO.setup(proxy_tensionatore, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_allineamento, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -131,7 +131,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 
     if (steptypeR == 0):    # Reset motori uno per volta
      
-        while (GPIO.input(proxy_distensori) == True):
+        '''while (GPIO.input(proxy_distensori) == True):
           GPIO.output(stepperP[0], GPIO.HIGH)
           time.sleep(micro0/1000000)
           GPIO.output(stepperP[0], GPIO.LOW)
@@ -141,18 +141,18 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           time.sleep(micro1/1000000)
           GPIO.output(stepperP[1], GPIO.LOW)
           time.sleep(micro1/1000000)
-        #while (GPIO.input(proxy_allineamento) == True):
-         # GPIO.output(stepperP[2], GPIO.HIGH)
-         # time.sleep(microR[2]/1000000)
-         # GPIO.output(stepperP[2], GPIO.LOW)
-         # time.sleep(microR[2]/1000000)
+        while (GPIO.input(proxy_allineamento) == True):
+          GPIO.output(stepperP[2], GPIO.HIGH)
+          time.sleep(microR[2]/1000000)
+          GPIO.output(stepperP[2], GPIO.LOW)
+          time.sleep(microR[2]/1000000)'''
         while (GPIO.input(proxy_videocamera) == True):
           GPIO.output(stepperP[3], GPIO.HIGH)
           time.sleep(micro3/1000000)
           GPIO.output(stepperP[3], GPIO.LOW)
           time.sleep(micro3/1000000)
-        while (GPIO.input(proxy_focus) == True):
-          moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
+        '''while (GPIO.input(proxy_focus) == True):
+          moveStep2(1,3,1)'''    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step.
         
     pos[0]=0
     pos[1]=0
@@ -165,25 +165,17 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 #
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
-GPIO.output(bobina_fissa, GPIO.LOW)
+
+
+stepR(0)
 #GPIO.output(bobina_mobile, GPIO.LOW)
 #GPIO.output(bobina_distensione, GPIO.LOW)
+#time.sleep(1)
+#stepC(500, 0)
 
 
-#stepC(0, 1)
+#stepC(420, 0)
 
-time.sleep(2)
-GPIO.output(bobina_bobina_distensione, GPIO.HIGH)
-time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.LOW)
-time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.HIGH)
-time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.LOW)
-time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.HIGH)
-time.sleep(2)
-GPIO.output(bobina_fissa, GPIO.LOW)
 #GPIO.output(bobina_fissa, GPIO.LOW)
 #moveStep2(0,8,20)
 #count = 20
@@ -191,7 +183,6 @@ GPIO.output(bobina_fissa, GPIO.LOW)
 #    moveStep2(0,8,1)
 #    count = count + 1
 #print("Il focus ha una corsa di: " + str(count) + ' steps.') 
-#stepR(0)
 
 
 #GPIO.output(dirP[2], GPIO.HIGH)

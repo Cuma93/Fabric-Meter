@@ -181,7 +181,7 @@ while True: # We repeat infinitely (until break):
     grey_lo=np.array([1,1,1])
     grey_hi=np.array([254,254,254])
     mask=cv2.inRange(hsv,grey_lo,grey_hi)
-    image[mask>0]=(0,0,0)
+    image[mask>0]=(255,255,255)
     # applicazione filtri singoli
     #bilateral_6 = cv2.bilateralFilter(image, 9, 350, 350)
     median_7 = cv2.medianBlur(image, 15)

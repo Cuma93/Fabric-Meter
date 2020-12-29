@@ -47,7 +47,7 @@ GPIO.setup(33, GPIO.OUT, initial=0)
 #GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
-GPIO.setup(bobina_distensione, GPIO.OUT, initial=1)
+GPIO.setup(bobina_distensione, GPIO.OUT, initial=0)
 
 GPIO.setup(proxy_tensionatore, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_allineamento, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -131,12 +131,12 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 
     if (steptypeR == 0):    # Reset motori uno per volta
      
-        '''while (GPIO.input(proxy_distensori) == True):
+        while (GPIO.input(proxy_distensori) == True):
           GPIO.output(stepperP[0], GPIO.HIGH)
           time.sleep(micro0/1000000)
           GPIO.output(stepperP[0], GPIO.LOW)
           time.sleep(micro0/1000000)
-        while (GPIO.input(proxy_tensionatore) == True):
+        '''while (GPIO.input(proxy_tensionatore) == True):
           GPIO.output(stepperP[1], GPIO.HIGH)
           time.sleep(micro1/1000000)
           GPIO.output(stepperP[1], GPIO.LOW)
@@ -145,14 +145,14 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           GPIO.output(stepperP[2], GPIO.HIGH)
           time.sleep(microR[2]/1000000)
           GPIO.output(stepperP[2], GPIO.LOW)
-          time.sleep(microR[2]/1000000)'''
+          time.sleep(microR[2]/1000000)
         while (GPIO.input(proxy_videocamera) == True):
           GPIO.output(stepperP[3], GPIO.HIGH)
           time.sleep(micro3/1000000)
           GPIO.output(stepperP[3], GPIO.LOW)
-          time.sleep(micro3/1000000)
-        #while (GPIO.input(proxy_focus) == True):
-        #  moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
+          time.sleep(micro3/1000000)'''
+        while (GPIO.input(proxy_focus) == True):
+          moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
         
     pos[0]=0
     pos[1]=0
@@ -166,33 +166,34 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
 
+#time.sleep(5)
 #GPIO.output(bobina_distensione, GPIO.LOW)
 #stepR(0)
-time.sleep(20)
-#stepC(250, 0)
+#time.sleep(0.5)
+#moveStep2(0,8,90)
+#time.sleep(20)
+#stepC(150, 0)
 
-count = 0
+
 cap = cv2.VideoCapture(0) # We turn the webcam on.
-#stepR(0)
 
-step_count=100
+
+step_count=1000
 for i in range (0,30):
-    
+#while True:    
     stepC(step_count, 3)
-    step_count = step_count + 100
-    time.sleep(0.75)
+    step_count = step_count + 1000
+    #time.sleep(0.75)
     #stepC(1, 3)
     ret,frame = cap.read()
-    height, width, _ = frame.shape
-    canvas1 = cv2.line(frame,(round(width/2), 0),(round(width/2), height),(0,255,0),1)  # linea verticale
-    canvas2 = cv2.line(canvas1,(0, round(height/2)),(width, round(height/2)),(0,255,0),1)   # linea orizzonatale
-    #cv2.startWindowThread()
-    #cv2.namedWindow("preview")
-    #cv2.imshow('preview',frame) # We display the outputs.
-    cv2.imwrite('/home/pi/Desktop/campionamento/capture_test_2/capture_test_' + str(i+1) + '.jpg', frame)
-    print("l'immagine " + str(count+1) + " è stata salvata")
+    #height, width, _ = frame.shape
+    #canvas1 = cv2.line(frame,(round(width/2), 0),(round(width/2), height),(0,255,0),1)  # linea verticale
+    #canvas2 = cv2.line(canvas1,(0, round(height/2)),(width, round(height/2)),(0,255,0),1)   # linea orizzonatale
+    cv2.imshow('preview',frame) # We display the outputs.
+    cv2.imwrite('/home/pi/Desktop/campionamento/capture test for direction/capture_test_6/capture_test_' + str(i+1) + '.jpg', frame)
+    #print("l'immagine " + str(count+1) + " è stata salvata")
     #cv2.imshow('preview',canvas2)
-    count = count + 1
+    #count = count + 1
     time.sleep(0.75)
   
     
