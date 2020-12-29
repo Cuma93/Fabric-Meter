@@ -1,0 +1,4 @@
+Installare Jupyter Notebook
+Installare Ipython
+
+Nella cartella del file aprire il terminal e digitare " jupyter notebook prova_immagini.ipynb --no-browser "                              
