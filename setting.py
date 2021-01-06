@@ -3,8 +3,10 @@ import time
 import RPi.GPIO as GPIO
 import yaml
 from StepperLib import *
-import numpy as np
 import cv2
+import numpy as np
+
+
 
 GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
 
@@ -43,7 +45,7 @@ GPIO.setup(38, GPIO.OUT, initial=0)
 GPIO.setup(35, GPIO.OUT, initial=0)
 GPIO.setup(33, GPIO.OUT, initial=0)
 
-GPIO.setup(24, GPIO.OUT, initial=1)
+#GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
 GPIO.setup(bobina_distensione, GPIO.OUT, initial=0)
@@ -63,18 +65,16 @@ GPIO.setup(laser, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 dirP = (31, 36, 40, 35)
 stepperP = (29, 37, 38, 33)
-microP = (10000, 50, 5000, 200)  # Tempo in microsecondi tra due step
+microP = (10000, 50, 5000, 500)  # Tempo in microsecondi tra due step
 
 # Posizione iniziale motore in step
 inizio_distensione = 0
-inizio_tensionamento = 10000
-inizio_allinemanento = 325
+inizio_tensionamento = 0
+inizio_allinemanento = 0
 inizio_videocamera = 0
 inizio_focus = 0
 
 pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus]   #contatore passi
-
-
 
 #______________________________________________________________________________________
 #
@@ -152,8 +152,8 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           time.sleep(micro3/1000000)
           GPIO.output(stepperP[3], GPIO.LOW)
           time.sleep(micro3/1000000)
-        #while (GPIO.input(proxy_focus) == True):
-        #  moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. '''
+        while (GPIO.input(proxy_focus) == True):
+          moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. '''
         
     pos[0]=0
     pos[1]=0
