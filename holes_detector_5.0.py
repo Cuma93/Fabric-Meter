@@ -122,7 +122,7 @@ while True: # We repeat infinitely (until break):
         cv2.imshow('Original', frame)
         
         # Interruzione ciclo
-    if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
+    if cv2.waitKey(0) & 0xFF == ord('q'): # If we type on the keyboard:
         #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
         break # We stop the loop.
     
