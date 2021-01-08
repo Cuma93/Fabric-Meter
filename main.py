@@ -16,11 +16,10 @@ def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che i
             selected_y.append(y)   
             selected_x.append(coordinates_x[i])
     ## qui abbiamo ottenuto la lista delle y che stanno nella fascia e la lista delle x corrispondenti
-    x_max = np.argmax(selected_x)  # restituisce l'indice dell'argomento massimo
+    x_max = np.argmin(selected_x)  # restituisce l'indice dell'argomento massimo
     #print("selected x: " + str(selected_x))
     #print("x max: " + str(x_max))
-    y_max = selected_y[x_max]
-    x_circle = selected_x[x_max]
+    x_circle = selected_x[x_max] 
     y_circle = selected_y[x_max] 
     cv2.circle(img,(int(x_circle), int(y_circle)), 5, (0, 255, 0), 2)
 
@@ -38,7 +37,7 @@ def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che i
             range_selected_y.append(y)   
             range_selected_x.append(coordinates_x[i])
     ## qui abbiamo ottenuto la lista delle y che stanno nella fascia e la lista delle x corrispondenti
-    x_max_range = np.argmax(range_selected_x)  # restituisce l'indice dell'argomento massimo
+    x_max_range = np.argmin(range_selected_x)  # restituisce l'indice dell'argomento massimo
     #print("selected x: " + str(range_selected_x))
     #print("x max range: " + str(x_max_range))
     y_max_range = range_selected_y[x_max_range]
@@ -51,7 +50,7 @@ def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che i
     short_selected_x.remove(x_circle_range)     # eliminiamo la coordinata x maggiore, cioè quella del foro più esterno
     short_selected_y = range_selected_y.copy()  # creiamo una copia della lista
     short_selected_y.remove(y_circle_range)     # eliminiamo la coordinata y corrispondente alla x maggiore, cioè quella del foro più esterno
-    x_next = np.argmax(short_selected_x)  # restituisce l'indice dell'argomento massimo
+    x_next = np.argmin(short_selected_x)  # restituisce l'indice dell'argomento massimo
     #print("range selected x: " + str(range_selected_x))
     #print("short selected x: " + str(short_selected_x))
     #print("range selected y: " + str(range_selected_y))
@@ -68,6 +67,7 @@ def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che i
 
 def alignment(img, x_last, y_last, x_next, y_next): # prende in ingresso l'immagine, le coordinate dell'ultimo foro e di quello adiacente.
     # intervallo di tolleranza
+    check_position = 2
     Y_max = int(y_last - 4)   
     Y_min = int(y_last + 4) 
     cv2.line(img,(0, Y_max) , (width, Y_max),(0, 255, 0) ,1)  # linea superiore
@@ -133,8 +133,6 @@ def filtered (frame_gray):
 	_, threshold = cv2.threshold(median, 140, 255, cv2.THRESH_BINARY)  # per isolare i fori
 		
 	return threshold
-    
-
 
 
 #______________________________________________________________________________________
@@ -143,39 +141,28 @@ def filtered (frame_gray):
 #______________________________________________________________________________________
 
 
-
+#stepR(4)
+#stepC(325, 2)
 #inizializza una lista vuota
-numbers = [] 
-
-
-hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml') 
-
-
- 
-
-#stepR(0)
 #GPIO.output(bobina_distensione, GPIO.LOW)
-
+#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
 '''time.sleep(15)
-moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
-'''
+stepC(100, 0)'''
+
+numbers = [] 
+hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
+#stepR(0)
 
 
 video_capture = cv2.VideoCapture(0)
 
 while True:
-	print("siamo arrivati qui 0")
 	_, img = video_capture.read()
-	print("siamo arrivati qui 1")
 	img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	print("siamo arrivati qui 2")
 	height, width = img_gray.shape[0:2]
-	print("siamo arrivati qui 3")
 	img_filtred = filtered(img_gray)
-	print("siamo arrivati qui 4")
 	X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
 	print("Le coordinate X sono: " + str(X)) 
-	print("siamo arrivati qui 5")
 	x_last, y_last, x_next, y_next = middleR(canvas, X, Y, width, height)
 	print("siamo arrivati qui 6")
 	print("Dimensione frame:" + str(width) + "x" + str(height) + "pxl")
@@ -199,7 +186,7 @@ while True:
 	  
 	if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
         #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-		break # We stop the loop.
+		break # We stop the loop.'''
 
 
 video_capture.release() # We turn the webcam off.

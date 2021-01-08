@@ -1,4 +1,11 @@
-from setting import *
+import os
+import time
+import RPi.GPIO as GPIO
+import yaml
+from StepperLib import *
+import cv2
+import numpy as np
+
 
 def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che individua le coordinate del foro nella mezzeria con coordinata x maggiore e quello adiacente
     ### Identifichiamo il foro più a destra che sta in un intorno di y centrato nella mezzeria
@@ -84,31 +91,32 @@ def alignment(img, x_last, y_last, x_next, y_next): # prende in ingresso l'immag
 
 
 def detect_hole(frame_gray):  # Funzione che identifica i centri dei fori, li numera !!! variare il threshold da 100 (maglia fitta) a 150 (maglia più lasca)
-    holes = hole_cascade.detectMultiScale(frame_gray, 1.1, 22) 
-    frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
-    print (len(holes))  # Stampa il numero di fori identificati
-    #print(holes)
-    marker = 1
-    x_holes = [] # lista delle cordinate X dei centri dei fori
-    y_holes = [] # lista delle cordinate Y dei centri dei fori
+	holes = hole_cascade.detectMultiScale(frame_gray, 1.1, 22) 
+	frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
+	print (len(holes))  # Stampa il numero di fori identificati
+	#print(holes)
+	marker = 1
+	x_holes = [] # lista delle cordinate X dei centri dei fori
+	y_holes = [] # lista delle cordinate Y dei centri dei fori
     
-    for (x, y, w, h) in holes:
-        cv2.circle(frame_color,(int(x+w/2), int(y+h/2)), 2, (0, 0, 255), 2)  # disegna il centro dei fori
-        # Numera i fori
-        cv2.putText(frame_color, str(marker), (int(x+w/2), int(y+h/2)), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
-        marker = marker + 1          
-        X = x+w/2   # coordinata x del centro del detecting
-        Y = y+h/2   # coordinata y del centro del detecting
-        x_holes.append(X)
-        y_holes.append(Y)
-        print("Cordinata x: " + str(x))
-        print("Cordinata y: " + str(y))
+	for (x, y, w, h) in holes:
+		cv2.circle(frame_color,(int(x+w/2), int(y+h/2)), 2, (0, 0, 255), 2)  # disegna il centro dei fori
+		# Numera i fori
+		cv2.putText(frame_color, str(marker), (int(x+w/2), int(y+h/2)), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)
+		marker = marker + 1          
+		X = x+w/2   # coordinata x del centro del detecting
+		Y = y+h/2   # coordinata y del centro del detecting
+		x_holes.append(X)
+		y_holes.append(Y)
+		#print("Cordinata x: " + str(x))
+        #print("Cordinata y: " + str(y))
         #roi = frame_color[y:y+h, x:x+w] # We get the region of interest in the image.
     
-    return list(x_holes), list(y_holes), frame_color   # We return the image with the detector rectangles.
+	return list(x_holes), list(y_holes), frame_color   # We return the image with the detector rectangles.
 
 
 def detect_row (frame_gray, range, y_center, coordinates_x, coordinates_y): # funzione che controlla quanti fori sono presenti nella fascia di controllo
+	hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
     holes = hole_cascade.detectMultiScale(frame_gray, 1.1, 22)
     frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
     Y_max = int(y_center - range/2)
@@ -133,76 +141,6 @@ def filtered (frame_gray):
 	_, threshold = cv2.threshold(median, 140, 255, cv2.THRESH_BINARY)  # per isolare i fori
 		
 	return threshold
-    
 
 
 
-#______________________________________________________________________________________
-#
-# AVVIO CICLO MACCHINA
-#______________________________________________________________________________________
-
-
-
-#inizializza una lista vuota
-numbers = [] 
-
-
-hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml') 
-
-
- 
-
-#stepR(0)
-#GPIO.output(bobina_distensione, GPIO.LOW)
-
-'''time.sleep(15)
-moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
-'''
-
-
-video_capture = cv2.VideoCapture(0)
-
-while True:
-	print("siamo arrivati qui 0")
-	_, img = video_capture.read()
-	print("siamo arrivati qui 1")
-	img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	print("siamo arrivati qui 2")
-	height, width = img_gray.shape[0:2]
-	print("siamo arrivati qui 3")
-	img_filtred = filtered(img_gray)
-	print("siamo arrivati qui 4")
-	X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
-	print("Le coordinate X sono: " + str(X)) 
-	print("siamo arrivati qui 5")
-	x_last, y_last, x_next, y_next = middleR(canvas, X, Y, width, height)
-	print("siamo arrivati qui 6")
-	print("Dimensione frame:" + str(width) + "x" + str(height) + "pxl")
-	print("Le coordinate del'ultimo foro sono: " + str((x_last, y_last)))
-	print("Le coordinate del foro adiacente sono: " + str((x_next, y_next)))
-	aligner = alignment(canvas, x_last, y_last, x_next, y_next)
-	print("siamo arrivati qui 7")
-	print("L'allineatore è: " + str(aligner))
-	if aligner == -1:
-		print("Muovi il motore 'allineamento' di un passo nella direzione corretta")
-	if aligner == 1:
-		print("Muovi il motore 'allineamento' di un passo nella direzione corretta")
-	check_row, holes_in_row = detect_row(img_gray, 80, y_last, X, Y)
-	if check_row == 1:
-		print("Tutti i " + str(holes_in_row) + " fori sono nella fascia di allineamento.")
-	else:
-		print("Solo " + str(holes_in_row) + " fori sono nella fascia di allineamento")
-
-	cv2.imshow("Sample", canvas)
-		
-	  
-	if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
-        #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-		break # We stop the loop.
-
-
-video_capture.release() # We turn the webcam off.
-cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.
-
-GPIO.cleanup()
