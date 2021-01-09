@@ -37,14 +37,14 @@ laser = 16
 
 # Setup GPIO input/output
 setup2() # Setup del mini step (vedi libreria StepperLib.py)
-GPIO.setup(31, GPIO.OUT, initial=0)
-GPIO.setup(29, GPIO.OUT, initial=0)
-GPIO.setup(36, GPIO.OUT, initial=0)
-GPIO.setup(37, GPIO.OUT, initial=0)
-GPIO.setup(40, GPIO.OUT, initial=0)
-GPIO.setup(38, GPIO.OUT, initial=0)
-GPIO.setup(35, GPIO.OUT, initial=0)
-GPIO.setup(33, GPIO.OUT, initial=0)
+GPIO.setup(dir_distensori, GPIO.OUT, initial=0)
+GPIO.setup(pull_distensori, GPIO.OUT, initial=0)
+GPIO.setup(dir_tensionatore, GPIO.OUT, initial=0)
+GPIO.setup(pull_tensionatore, GPIO.OUT, initial=0)
+GPIO.setup(dir_allineamento, GPIO.OUT, initial=0)
+GPIO.setup(pull_allineamento, GPIO.OUT, initial=0)
+GPIO.setup(dir_videocamera, GPIO.OUT, initial=0)
+GPIO.setup(pull_videocamera, GPIO.OUT, initial=0)
 
 #GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
@@ -75,12 +75,31 @@ inizio_allinemanento = 0
 inizio_videocamera = 0
 inizio_focus = 0
 
+
 pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus]   #contatore passi
+
+
+
+def save_position (file_name, position):
+	file = open("file_name", 'w+')
+	file.write(str(position))
+	file.close()
+
+
+def read_position (file_name):
+	file = open("file_name", 'r')
+	pos = file.read()
+	position = pos
+	file.close()
+	
+	return int(position)
 
 
 
 
 # Funzione di controllo motori step
+
+
 
 def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, numero identificativo motore) 
     dirPin = dirP[puntatoreposizione]
@@ -88,6 +107,7 @@ def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, nu
     micro = microP[puntatoreposizione]
     dir=0
 
+		
     if(stepfinal>pos[puntatoreposizione]):
         GPIO.output(dirPin, GPIO.HIGH)
         dir=1
@@ -105,7 +125,10 @@ def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, nu
             pos[puntatoreposizione] = pos[puntatoreposizione] + 1
         else:
             pos[puntatoreposizione] = pos[puntatoreposizione] - 1
-            
+	
+    if(puntatoreposizione == 2):
+        save_position("position.txt", pos[2])
+    
             
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -128,9 +151,9 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 	if (steptypeR == 5):  # Reset motori uno per volta
 		while (GPIO.input(proxy_distensori) == True):
 			GPIO.output(stepperP[0], GPIO.HIGH)
-			time.sleep(micro[0]/1000000)
+			time.sleep(microR[0]/1000000)
 			GPIO.output(stepperP[0], GPIO.LOW)
-			time.sleep(micro[0]/1000000)
+			time.sleep(microR[0]/1000000)
 		while (GPIO.input(proxy_tensionatore) == True):
 			GPIO.output(stepperP[1], GPIO.HIGH)
 			time.sleep(microR[1]/1000000)
@@ -143,9 +166,9 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 			time.sleep(microR[2]/1000000)
 		while (GPIO.input(proxy_videocamera) == True):
 			GPIO.output(stepperP[3], GPIO.HIGH)
-			time.sleep(micro3/1000000)
+			time.sleep(microR[3]/1000000)
 			GPIO.output(stepperP[3], GPIO.LOW)
-			time.sleep(micro3/1000000)
+			time.sleep(microR[3]/1000000)
 		while (GPIO.input(proxy_focus) == True):
 			moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. '''
         
@@ -161,9 +184,9 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 	if (steptypeR == 0):    # Reset motori distensione
 		while (GPIO.input(proxy_distensori) == True):
 			GPIO.output(stepperP[0], GPIO.HIGH)
-			time.sleep(micro0/1000000)
+			time.sleep(microR[0]/1000000)
 			GPIO.output(stepperP[0], GPIO.LOW)
-			time.sleep(micro0/1000000)
+			time.sleep(microR[0]/1000000)
         
 	pos[0]=0
     
@@ -173,9 +196,9 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 	if (steptypeR == 1):    # Reset motore tensionatore
 		while (GPIO.input(proxy_tensionatore) == True):
 			GPIO.output(stepperP[1], GPIO.HIGH)
-			time.sleep(micro1/1000000)
+			time.sleep(microR[1]/1000000)
 			GPIO.output(stepperP[1], GPIO.LOW)
-			time.sleep(micro1/1000000)
+			time.sleep(microR[1]/1000000)
        
 	pos[1]=0
 
@@ -189,7 +212,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 			GPIO.output(stepperP[2], GPIO.LOW)
 			time.sleep(microR[2]/1000000)
         
-	pos[2]=325
+	pos[2]=0
     
     #print("Il sistema è pronto.")
     
@@ -197,9 +220,9 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 	if (steptypeR == 3):    # Reset motore avanzamento videocamera
 		while (GPIO.input(proxy_videocamera) == True):
 			GPIO.output(stepperP[3], GPIO.HIGH)
-			time.sleep(micro3/1000000)
+			time.sleep(microR[3]/1000000)
 			GPIO.output(stepperP[3], GPIO.LOW)
-			time.sleep(micro3/1000000)
+			time.sleep(microR[3]/1000000)
         
 	pos[3]=0
     
