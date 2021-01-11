@@ -148,19 +148,15 @@ def filtered (frame_gray):
 
 
 #stepR(3)
-#stepR(1)
-#stepR(0)
+#stepR(2)
 
-stepC(50, 2)
+stepC(328, 2)
 #save_position("position.txt", pos[2])
 #stepC(position_value, 0)
 #inizializza una lista vuota
 #GPIO.output(bobina_fissa, GPIO.LOW)
 #moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
 
-position_value = read_position("position.txt")
-
-print(position_value)
 
 numbers = [] 
 hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
@@ -169,8 +165,8 @@ hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classif
 
 video_capture = cv2.VideoCapture(0)
 
-while True:
-	'''_, img = video_capture.read()
+'''while True:
+	_, img = video_capture.read()
 	img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 	height, width = img_gray.shape[0:2]
 	cv2.imshow("Try", img)
@@ -195,17 +191,16 @@ while True:
 	else:
 		print("Solo " + str(holes_in_row) + " fori sono nella fascia di allineamento")
 
-	cv2.imshow("Sample", canvas)'''
+	cv2.imshow("Sample", canvas)
 		
 	  
 	if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
         #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-		break # We stop the loop.
+		break # We stop the loop.'''
 
 
 video_capture.release() # We turn the webcam off.
 cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.
 
-save_position("position.txt", pos[2])
 
 GPIO.cleanup()

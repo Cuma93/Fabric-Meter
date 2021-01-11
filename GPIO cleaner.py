@@ -32,14 +32,15 @@ laser = 16
 
 # Setup GPIO input/output
 setup2()
-GPIO.setup(31, GPIO.OUT)
-GPIO.setup(29, GPIO.OUT)
-GPIO.setup(36, GPIO.OUT)
-GPIO.setup(37, GPIO.OUT)
-GPIO.setup(40, GPIO.OUT)
-GPIO.setup(38, GPIO.OUT)
-GPIO.setup(35, GPIO.OUT)
-GPIO.setup(33, GPIO.OUT)
+GPIO.setup(dir_distensori, GPIO.OUT, initial=0)
+GPIO.setup(pull_distensori, GPIO.OUT, initial=0)
+GPIO.setup(dir_tensionatore, GPIO.OUT, initial=0)
+GPIO.setup(pull_tensionatore, GPIO.OUT, initial=0)
+GPIO.setup(dir_allineamento, GPIO.OUT, initial=0)
+GPIO.setup(pull_allineamento, GPIO.OUT, initial=0)
+GPIO.setup(dir_videocamera, GPIO.OUT, initial=0)
+GPIO.setup(pull_videocamera, GPIO.OUT, initial=0)
+
 
 GPIO.setup(bobina_mobile, GPIO.OUT)
 GPIO.setup(bobina_fissa, GPIO.OUT)
