@@ -165,12 +165,13 @@ hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classif
 
 video_capture = cv2.VideoCapture(0)
 
-'''while True:
+while True:
+	start = time.time()
 	_, img = video_capture.read()
 	img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	height, width = img_gray.shape[0:2]
-	cv2.imshow("Try", img)
-	img_filtred = filtered(img_gray)
+	#height, width = img_gray.shape[0:2]
+	cv2.imshow("Try", img_gray)
+	'''img_filtred = filtered(img_gray)
 	X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
 	print("Le coordinate X sono: " + str(X)) 
 	x_last, y_last, x_next, y_next = middleR(canvas, X, Y, width, height)
@@ -191,12 +192,13 @@ video_capture = cv2.VideoCapture(0)
 	else:
 		print("Solo " + str(holes_in_row) + " fori sono nella fascia di allineamento")
 
-	cv2.imshow("Sample", canvas)
-		
-	  
+	cv2.imshow("Sample", canvas)'''
+	
+	end = time.time()
+	print("tempo " + str(end - start))
 	if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
         #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-		break # We stop the loop.'''
+		break # We stop the loop.
 
 
 video_capture.release() # We turn the webcam off.

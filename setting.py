@@ -68,7 +68,6 @@ def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, nu
 def stepR (steptypeR):                # Steptype è il metodo di reset. Eventualmente si può fare un reset diverso facendo andare a zero i motori in modo diverso. 
 	GPIO.output(dirP[0], GPIO.LOW)
 	GPIO.output(dirP[1], GPIO.LOW)
-	#GPIO.output(dirP[2], GPIO.LOW)
 	GPIO.output(dirP[3], GPIO.LOW)
     
     # Posizione 0 ---> 4 motori estensione
@@ -156,8 +155,22 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     
     #print("Il sistema è pronto.")
 
-
-
+	if (steptypeR == 5):    # Reset combinato videocamera e bobina mobile
+		while (GPIO.input(proxy_videocamera) == True or GPIO.input(proxy_tensionatore) == True):
+			if (GPIO.input(proxy_videocamera) == True):
+				GPIO.output(stepperP[3], GPIO.HIGH)
+				time.sleep(microR[3]/1000000)
+				GPIO.output(stepperP[3], GPIO.LOW)
+				time.sleep(microR[3]/1000000)
+			if (GPIO.input(proxy_tensionatore) == True):
+				GPIO.output(stepperP[1], GPIO.HIGH)
+				time.sleep(microR[1]/1000000)
+				GPIO.output(stepperP[1], GPIO.LOW)
+				time.sleep(microR[1]/1000000)
+		
+		pos[1]=0
+		pos[3]=0
+		
 
 GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
 
@@ -184,7 +197,6 @@ proxy_focus = 13
 proxy_videocamera = 15
 laser = 16
 
-
 # Setup GPIO input/output
 setup2() # Setup del mini step (vedi libreria StepperLib.py)
 GPIO.setup(dir_distensori, GPIO.OUT, initial=0)
@@ -195,30 +207,27 @@ GPIO.setup(dir_allineamento, GPIO.OUT, initial=0)
 GPIO.setup(pull_allineamento, GPIO.OUT, initial=0)
 GPIO.setup(dir_videocamera, GPIO.OUT, initial=0)
 GPIO.setup(pull_videocamera, GPIO.OUT, initial=0)
-
 #GPIO.setup(24, GPIO.OUT, initial=1)
 GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
 GPIO.setup(bobina_distensione, GPIO.OUT, initial=0)
-
 GPIO.setup(proxy_tensionatore, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_allineamento, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_distensori, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_focus, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proxy_videocamera, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(laser, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
 # DEFINIZIONE MOTORI
 # Posizione 0 ---> 4 motori estensione
 # Posizione 1 ---> motore tensionatore
 # Posizione 2 ---> motore allineamento
 # Posizione 3 ---> motore videocamera
 
+
+
 dirP = (31, 36, 40, 35)
 stepperP = (29, 37, 38, 33)
 microP = (10000, 50, 2000, 500)  # Tempo in microsecondi tra due step
-
-
 
 
 # Posizione iniziale motore in step
@@ -228,9 +237,9 @@ inizio_allinemanento = read_position("position.txt")
 inizio_videocamera = 0
 inizio_focus = 0
 
-
 pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus]   #contatore passi
 #print("La posizione di 2: " + str(pos[2]))
+
 
 
 
