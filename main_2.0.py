@@ -286,8 +286,8 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 
 def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che individua le coordinate del foro nella mezzeria con coordinata x maggiore e quello adiacente
     ### Identifichiamo il foro più a destra che sta in un intorno di y centrato nella mezzeria
-    Y_max = int(height/2 - 50)
-    Y_min = int(height/2 + 50)
+    Y_max = int(height/2 - 40)
+    Y_min = int(height/2 + 40)
     selected_y = []
     selected_x = []
     #print("La lista selected_x vale: " + str(selected_x))
@@ -370,7 +370,7 @@ def alignment(img, x_last, y_last, x_next, y_next): # prende in ingresso l'immag
 def detect_hole(frame_gray):  # Funzione che identifica i centri dei fori, li numera !!! variare il threshold da 100 (maglia fitta) a 150 (maglia più lasca)
     holes = hole_cascade.detectMultiScale(frame_gray, 1.1, 22) 
     frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
-    print (len(holes))  # Stampa il numero di fori identificati
+    #print (len(holes))  # Stampa il numero di fori identificati
     #print(holes)
     marker = 1
     x_holes = [] # lista delle cordinate X dei centri dei fori
@@ -385,9 +385,8 @@ def detect_hole(frame_gray):  # Funzione che identifica i centri dei fori, li nu
         Y = y+h/2   # coordinata y del centro del detecting
         x_holes.append(X)
         y_holes.append(Y)
-        print("Cordinata x: " + str(x))
-        print("Cordinata y: " + str(y))
-        #roi = frame_color[y:y+h, x:x+w] # We get the region of interest in the image.
+        #print("Cordinata x: " + str(x))
+        #print("Cordinata y: " + str(y))
     
     return list(x_holes), list(y_holes), frame_color   # We return the image with the detector rectangles.
 
@@ -443,69 +442,101 @@ def clean_gpio():
 
 
 def start_main():
-	global pos
-	stepR(0)
-	#stepC(130, 0)
-	#stepR(3)
-	#time.sleep(0.05)
-	#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
-	stepR(6)
-	#stepC(6000, 1)
-	stepC(1000, 3)
-	#stepR(2)
-	print(pos[3])
+	global hole_cascade
+	global height, width
 	
+	
+	
+	# Reset motori
+	stepR(0)
+	stepR(3)
+	stepR(2)
+	#stepR(4)
+	stepR(6)
+	
+	# Azionamento motori
+	#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
+	stepC(130, 0)
+	stepC(5000, 3)
+	print("pos 3 vale: " + str(pos[3]))
 	#save_position("position.txt", pos[2])
 	#stepC(position_value, 0)
 	#inizializza una lista vuota
-	#GPIO.output(bobina_fissa, GPIO.LOW)
+	#GPIO.output(bobina_fissa, GPIO.LOW)'''
 	
-
-
-	numbers = [] 
+	# Caricamento classificatore
 	hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
-
-
-
+	
+	# Attivazione videocamera
 	video_capture = cv2.VideoCapture(0)
 	
+	video_position_counter = pos[3]
+	aligner_position_counter = pos[2]
 
-
+	# Ciclo visione
 	while (GPIO.input(proxy_videocamera) == True):
-		_, img = video_capture.read()
-		img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-		cv2.imshow("Sample", img_gray)
-		'''height, width = img_gray.shape[0:2]
-		cv2.imshow("Try", img)
-		img_filtred = filtered(img_gray)
-		X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
-		print("Le coordinate X sono: " + str(X)) 
-		x_last, y_last, x_next, y_next = middleR(canvas, X, Y, width, height)
-		print("siamo arrivati qui 6")
-		print("Dimensione frame:" + str(width) + "x" + str(height) + "pxl")
-		print("Le coordinate del'ultimo foro sono: " + str((x_last, y_last)))
-		print("Le coordinate del foro adiacente sono: " + str((x_next, y_next)))
-		aligner = alignment(canvas, x_last, y_last, x_next, y_next)
-		print("siamo arrivati qui 7")
-		print("L'allineatore è: " + str(aligner))
-		if aligner == -1:
-			print("Muovi il motore 'allineamento' di un passo nella direzione corretta")
-		if aligner == 1:
-			print("Muovi il motore 'allineamento' di un passo nella direzione corretta")
-		check_row, holes_in_row = detect_row(img_gray, 80, y_last, X, Y)
-		if check_row == 1:
-			print("Tutti i " + str(holes_in_row) + " fori sono nella fascia di allineamento.")
-		else:
-			print("Solo " + str(holes_in_row) + " fori sono nella fascia di allineamento")
+		ret, img = video_capture.read()
+		if ret == True:
+			img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+			cv2.imshow("Natural Gray", img_gray)
 
-		cv2.imshow("Sample", canvas)'''
-		cv2.waitKey(1)
-		video_position = video_position - 10
-		stepC(video_position, 3)
-		  
-		if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
-			#print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-			break # We stop the loop.
+			height, width = img_gray.shape[0:2]
+			img_filtred = filtered(img_gray)
+			X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
+			#print("Le coordinate X sono: " + str(X)) 
+			x_last, y_last, x_next, y_next = middleR(canvas, X, Y, width, height)
+			#print("siamo arrivati qui 6")
+			#print("Dimensione frame:" + str(width) + "x" + str(height) + "pxl")
+			#print("Le coordinate del'ultimo foro sono: " + str((x_last, y_last)))
+			#print("Le coordinate del foro adiacente sono: " + str((x_next, y_next)))
+			aligner = alignment(canvas, x_last, y_last, x_next, y_next)
+			print(aligner)
+			#print("siamo arrivati qui 7")
+			#print("L'allineatore è: " + str(aligner))
+			cv2.imshow("Sample", canvas)
+			
+			if aligner == -1:
+				aligner_position_counter = aligner_position_counter - 1
+				stepC(aligner_position_counter, 2)
+				cv2.imshow("Sample", canvas)
+				cv2.waitKey(5)
+				
+				
+			if aligner == 1:
+				aligner_position_counter = aligner_position_counter + 1
+				stepC(aligner_position_counter, 2)
+				cv2.imshow("Sample", canvas)
+				cv2.waitKey(5)
+				
+			
+			if aligner == 0:
+				cv2.imshow("Sample", canvas)
+				cv2.waitKey(1)
+				video_position_counter = video_position_counter - 100
+				print(video_position_counter)
+				stepC(video_position_counter, 3)
+				
+			
+			if aligner == 2:
+				cv2.imshow("Sample", canvas)
+				cv2.waitKey(1)
+				print("ERROR")
+			
+			
+		
+		
+			'''check_row, holes_in_row = detect_row(img_gray, 80, y_last, X, Y)
+			if check_row == 1:
+				print("Tutti i " + str(holes_in_row) + " fori sono nella fascia di allineamento.")
+			else:
+				print("Solo " + str(holes_in_row) + " fori sono nella fascia di allineamento")'''
+			
+			
+		
+			  
+			if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
+				#print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
+				break # We stop the loop.
 
 
 	video_capture.release() # We turn the webcam off.
