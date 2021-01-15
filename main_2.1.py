@@ -99,6 +99,8 @@ def setting():
 	
 	global Setting
 	Setting = True
+	
+	stepR(0)
 
 # -------------------------------------------------------------------
 # FUNZIONE SCRITTURA E SALVATAGGIO POSIZIONE SU FILE ESTERNO
@@ -319,8 +321,8 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 
 def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che individua le coordinate del foro nella mezzeria con coordinata x maggiore e quello adiacente
     ### Identifichiamo il foro più a destra che sta in un intorno di y centrato nella mezzeria
-    Y_max = int(height/2 - 40)
-    Y_min = int(height/2 + 40)
+    Y_max = int(height/2 - 20)
+    Y_min = int(height/2 + 20)
     selected_y = []
     selected_x = []
     #print("La lista selected_x vale: " + str(selected_x))
@@ -498,8 +500,8 @@ def start_main():
 	# Azionamento motori
 	#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
 	#stepC(0, 2)
-	#stepC(150, 0)
-	#stepC(79000, 3)
+	stepC(150, 0)
+	stepC(79000, 3)
 	#print("pos 3 vale: " + str(pos[3]))
 	#save_position("position.txt", pos[2])
 	#stepC(position_value, 0)
@@ -526,7 +528,7 @@ def start_main():
 			while True:
 				img_filtred = filtered(img_gray, threshold_value)
 				holes_number, X, Y, canvas = detect_hole(img_filtred)  # restituisce l'immagine, la lista delle coordinate x e la lista delle coordinate y
-				if (holes_number <= 27 and threshold_value >= 120):
+				if (holes_number <= 29 and threshold_value >= 120):
 					threshold_value = threshold_value - 10
 				else:
 					break
@@ -543,14 +545,14 @@ def start_main():
 			cv2.imshow("Sample", canvas)
 			
 			if aligner == -1:
-				aligner_position_counter = aligner_position_counter - 1
+				aligner_position_counter = aligner_position_counter - 3
 				stepC(aligner_position_counter, 2)
 				cv2.imshow("Sample", canvas)
 				cv2.waitKey(1)
 				
 				
 			if aligner == 1:
-				aligner_position_counter = aligner_position_counter + 1
+				aligner_position_counter = aligner_position_counter + 3
 				stepC(aligner_position_counter, 2)
 				cv2.imshow("Sample", canvas)
 				cv2.waitKey(1)
