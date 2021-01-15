@@ -8,10 +8,16 @@ import numpy as np
 from tkinter import *
 from tkinter import font as tkFont
 
+
+# FUNZIONE PER LA LIBERAZIONE DELLA GPIO
+
+def clean_gpio():
+	GPIO.cleanup()
+
+
 # FUNZIONE PER IL SETUP INIZIALE
 
 def setting():
-	
 	
 	GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
 
@@ -371,26 +377,40 @@ def middleR(img, coordinates_x, coordinates_y, width, height):  # funzione che i
     x_circle_next = short_selected_x[x_next]
     y_circle_next = short_selected_y[x_next] 
     cv2.circle(img,(int(x_circle_next), int(y_circle_next)), 5, (0, 100, 100), 2)
+    
+    
+    '''second_short_selected_x = short_selected_x.copy()  # creiamo una copia della lista
+    second_short_selected_x.remove(x_circle_next)     # eliminiamo la coordinata x maggiore, cioè quella delsecondo foro più esterno
+    second_short_selected_y = short_selected_y.copy()  # creiamo una copia della lista
+    second_short_selected_y.remove(y_circle_next)     # eliminiamo la coordinata y corrispondente alla x maggiore, cioè quella del secondo foro più esterno
+    y_third = second_short_selected_y[x_third]  # cerchiamo la coordinata y corrispondente a x_next
+    x_circle_third = second_short_selected_x[x_third]
+    y_circle_third = second_short_selected_y[x_third] 
+    cv2.circle(img,(int(x_circle_third), int(y_circle_third)), 5, (0, 100, 100), 2)'''
 
     return x_circle, y_circle, x_circle_next, y_circle_next
 
 
 
 def alignment(img, x_last, y_last, x_next, y_next): # prende in ingresso l'immagine, le coordinate dell'ultimo foro e di quello adiacente.
+	global alignment_commuter
     # intervallo di tolleranza
-    check_position = 2
-    Y_max = int(y_last - 12)   
-    Y_min = int(y_last + 12) 
-    cv2.line(img,(0, Y_max) , (width, Y_max),(0, 255, 0) ,1)  # linea superiore
-    cv2.line(img,(0, Y_min) , (width, Y_min),(0, 255, 0) ,1)  # linea inferiore
-    if (y_next < Y_max):
-        check_position = 1
-    if (y_next > Y_min):
-        check_position = -1
-    if (y_next > Y_max and y_next < Y_min):
-        check_position = 0
+	check_position = 2
+	if (alignment_commuter == True): # setta il range di controllo solo al primo richiamo della funzione (quindi al primo frame). 
+		global Y_max, Y_min
+		Y_max = int(y_last - 10)   
+		Y_min = int(y_last + 10)
+		alignment_commuter = False
+	cv2.line(img,(0, Y_max) , (width, Y_max),(0, 255, 0) ,1)  # linea superiore
+	cv2.line(img,(0, Y_min) , (width, Y_min),(0, 255, 0) ,1)  # linea inferiore
+	if (y_next < Y_max):
+		check_position = 1
+	if (y_next > Y_min):
+		check_position = -1
+	if (y_next > Y_max and y_next < Y_min):
+		check_position = 0
     
-    return check_position
+	return check_position
 
 
 
@@ -445,11 +465,6 @@ def filtered (frame_gray, threshold_value):
 	return threshold
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# FUNZIONE SALVATAGGIO E SCRITTURA SU FILE ESTERNO
-
-
-	
-
 
 #______________________________________________________________________________________
 #
@@ -457,15 +472,14 @@ def filtered (frame_gray, threshold_value):
 #______________________________________________________________________________________
 trigger = False
 Setting = False
+global alignment_commuter
+alignment_commuter = True
 
 setting()
 GPIO.cleanup()
 
 #def stop_main():
 #	break
-	
-def clean_gpio():
-	GPIO.cleanup()
 
 
 def start_main():
@@ -484,8 +498,8 @@ def start_main():
 	# Azionamento motori
 	#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
 	#stepC(0, 2)
-	stepC(150, 0)
-	stepC(79000, 3)
+	#stepC(150, 0)
+	#stepC(79000, 3)
 	#print("pos 3 vale: " + str(pos[3]))
 	#save_position("position.txt", pos[2])
 	#stepC(position_value, 0)
@@ -576,6 +590,9 @@ def start_main():
 	cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.
 
 
+# --------------------------------------------------------------------------------------------------------------------------------
+# GUI
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
 start_loop = True
 root = Tk()
