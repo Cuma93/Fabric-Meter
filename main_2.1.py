@@ -105,7 +105,7 @@ def setting():
 # -------------------------------------------------------------------
 
 def read_position (file_name):
-	file = open("file_name", 'r')
+	file = open(file_name, 'r')
 	pos = file.read()
 	position = pos
 	file.close()
