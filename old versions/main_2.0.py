@@ -12,7 +12,6 @@ from tkinter import font as tkFont
 
 def setting():
 	
-	
 	GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
 
 	global dir_distensori, pull_distensori, dir_tensionatore, pull_tensionatore, dir_allineamento, pull_allineamento, dir_videocamera, pull_videocamera
