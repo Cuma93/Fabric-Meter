@@ -167,17 +167,18 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 #______________________________________________________________________________________
 
 #time.sleep(5)
-#GPIO.output(bobina_distensione, GPIO.LOW)
+GPIO.output(bobina_distensione, GPIO.LOW)
 #stepR(0)
 #time.sleep(0.5)
-#moveStep2(0,8,90)
-#time.sleep(20)
-#stepC(150, 0)
+moveStep2(0,8,90)
+time.sleep(25)
+stepC(150, 0)
+time.sleep(5)
 
 
 cap = cv2.VideoCapture(0) # We turn the webcam on.
 
-
+count = 0
 step_count=1000
 for i in range (0,30):
 #while True:    
@@ -190,12 +191,12 @@ for i in range (0,30):
     #canvas1 = cv2.line(frame,(round(width/2), 0),(round(width/2), height),(0,255,0),1)  # linea verticale
     #canvas2 = cv2.line(canvas1,(0, round(height/2)),(width, round(height/2)),(0,255,0),1)   # linea orizzonatale
     cv2.imshow('preview',frame) # We display the outputs.
-    cv2.imwrite('/home/pi/Desktop/campionamento/capture test for direction/capture_test_6/capture_test_' + str(i+1) + '.jpg', frame)
+    cv2.imwrite('/home/pi/Desktop/campionamento/blue/capture_test_2/capture_test_' + str(i+1) + '.jpg', frame)
     #print("l'immagine " + str(count+1) + " è stata salvata")
     #cv2.imshow('preview',canvas2)
-    #count = count + 1
+    count = count + 1
     time.sleep(0.75)
-  
+    #cv2.waitKey(1)
     
     
     '''if ret == True:
@@ -208,8 +209,9 @@ for i in range (0,30):
     
     
     if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
-            #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-            break # We stop the loop.
+	    #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
+	    break # We stop the loop.
+	
 cap.release() # We turn the webcam off.
 cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.a
 

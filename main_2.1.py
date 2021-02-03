@@ -116,7 +116,7 @@ def read_position (file_name):
 
 
 def save_position(file_name, position):
-	file = open("file_name", 'w+')
+	file = open(file_name, 'w+')
 	file.write(str(position))
 	file.close()
 
@@ -494,14 +494,14 @@ def start_main():
 	stepR(0)
 	stepR(3)
 	stepR(2)
-	#stepR(4)
+	stepR(4)
 	stepR(6)
 	
 	# Azionamento motori
 	#moveStep2(0,8,90)   # 90 x sfocato 100 per nitido
 	#stepC(0, 2)
-	stepC(150, 0)
-	stepC(79000, 3)
+	#stepC(150, 0)
+	#stepC(500, 3)
 	#print("pos 3 vale: " + str(pos[3]))
 	#save_position("position.txt", pos[2])
 	#stepC(position_value, 0)
@@ -524,6 +524,7 @@ def start_main():
 			img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 			cv2.imshow("Natural Gray", img_gray)
 			height, width = img_gray.shape[0:2]
+			print("height, width: " + str(height) + " " + str(width))
 			threshold_value = 140
 			while True:
 				img_filtred = filtered(img_gray, threshold_value)
