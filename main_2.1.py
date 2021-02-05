@@ -48,7 +48,6 @@ def setting():
 	proxy_videocamera = 15
 	laser = 16
 
-
 	# Setup GPIO input/output
 	setup2() # Setup del mini step (vedi libreria StepperLib.py)
 	GPIO.setup(dir_distensori, GPIO.OUT, initial=0)
@@ -60,7 +59,6 @@ def setting():
 	GPIO.setup(dir_videocamera, GPIO.OUT, initial=0)
 	GPIO.setup(pull_videocamera, GPIO.OUT, initial=0)
 
-	#GPIO.setup(24, GPIO.OUT, initial=1)
 	GPIO.setup(bobina_mobile, GPIO.OUT, initial=1)
 	GPIO.setup(bobina_fissa, GPIO.OUT, initial=1)
 	GPIO.setup(bobina_distensione, GPIO.OUT, initial=0)
@@ -73,7 +71,7 @@ def setting():
 	GPIO.setup(laser, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 	# DEFINIZIONE MOTORI
-	# Posizione 0 ---> 4 motori estensione
+	# Posizione 0 ---> 4 motori distensione
 	# Posizione 1 ---> motore tensionatore
 	# Posizione 2 ---> motore allineamento
 	# Posizione 3 ---> motore videocamera
