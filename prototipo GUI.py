@@ -46,9 +46,6 @@ def start():
     tk.Label(message_frame, text="IN ESECUZIONE...").grid(row=0, column=0)
     progress_bar = Progressbar(objects_frame, orient="horizontal", mode="determinate", maximum=100, value=0)
     progress_bar.grid(row=0, column=1)
-    objects_frame.update()
-    progress_bar['value'] = 0
-    objects_frame.update()
 
     # Procedere con il campionamento fino ad ottenere la dist minima di controllo tra i fori e numero di fori per riga.
     # Restituire un True dalla funzione campionamento
