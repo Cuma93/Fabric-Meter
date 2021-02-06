@@ -24,6 +24,7 @@ from tkinter import font as tkFont #.........................fonts per GUI
 ######################################  FUNZIONI MOTORI  #######################################
 ################################################################################################
 
+# Legge la posizione da file
 def read_position (file_name):
     file = open(file_name, 'r')
     pos = file.read()
@@ -33,6 +34,7 @@ def read_position (file_name):
     return int(position)
 
 
+# Salva la posizione su file
 def save_position(file_name, position):
     file = open(file_name, 'w+')
     file.write(str(position))
@@ -97,7 +99,6 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     
     GPIO.output(dirP[0], GPIO.LOW)
     GPIO.output(dirP[1], GPIO.LOW)
-    #GPIO.output(dirP[2], GPIO.LOW)
     GPIO.output(dirP[3], GPIO.LOW)
     
     # Posizione 0 ---> 4 motori estensione
@@ -117,7 +118,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
             time.sleep(microR[0]/1000000)
         
         pos[0]=0
-        
+
     #--------------------------------------------------------------------------------------------------------------------------------------------
     # Reset motore tensionatore
     if (steptypeR == 1):    
@@ -214,14 +215,22 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     #--------------------------------------------------------------------------------------------------------------------------------------------
     # Reset combinato: videocamera e bobina mobile.
     # Reset singolo: distensione, focus, allineamento.
-    if (steptypeR == 7):    
-        
-        while (GPIO.input(proxy_distensori) == True):
-            GPIO.output(stepperP[0], GPIO.HIGH)
-            time.sleep(microR[0]/1000000)
-            GPIO.output(stepperP[0], GPIO.LOW)
-            time.sleep(microR[0]/1000000)
+    if (steptypeR == 7):
+        # Reset distensori con allineamento forzato
+        if (GPIO.input(proxy_distensori) == True):
+            while (GPIO.input(proxy_distensori) == True):
+                GPIO.output(stepperP[0], GPIO.HIGH)
+                time.sleep(microR[0]/1000000)
+                GPIO.output(stepperP[0], GPIO.LOW)
+                time.sleep(microR[0]/1000000)
             
+            pos[0]=60
+                
+            stepC(0, 0)
+
+
+        #---------------------------------------------------------------------------------------------
+        # Reset combinato tensionatore e videocamera
         while (GPIO.input(proxy_videocamera) == True or GPIO.input(proxy_tensionatore) == True):
             
             if (GPIO.input(proxy_videocamera) == True and GPIO.input(proxy_tensionatore) == True):
@@ -247,8 +256,12 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
                     GPIO.output(stepperP[1], GPIO.LOW)
                     time.sleep(microR[1]/1000000)
         
+        #-----------------------------------------------------------------------------------------------------------------------------
+        # Reset allineamento
         stepC(328,2)
         
+        #------------------------------------------------------------------------------------------------------------------------------
+        #Reset focus
         while (GPIO.input(proxy_focus) == True):
             moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step
         
@@ -333,6 +346,7 @@ def best_filtering(img):
 
 
 # Funzione per eliminare outilers usando la regressione lineare
+# Prende in ingresso un array di coordinate dei punti su cui applicare la regressione
 def regression(points_coordinates):
     
     coordinates_x = []
@@ -343,18 +357,13 @@ def regression(points_coordinates):
 
     x = np.array(coordinates_x)  # creiamo un array delle coordinate x della fascia di controllo 
     y = np.array(coordinates_y)  # creiamo un array delle coordinate y della fascia di controllo
-    #print(x)
-    #print(y)
-    #plt.plot(x, y, 'o', label='original data')
-    #plt.show()
+
     points_in_band = []  # numero di punti rilevati in ogni riga
     
     if len(coordinates_x) > 1: # se nella fascia sono presenti almeno 2 punti
         # Creazione della fascia di filtraggio
         lim_inf = np.median(y) - 2 * np.std(y)  # il parametro può variare (1 filtro stretto - 3 filtro largo)
         lim_sup = np.median(y) + 2 * np.std(y)
-        #print("Lim inf =" + str(lim_inf))
-        #print("Lim sup =" + str(lim_sup))
         
         filtred_x = []
         filtred_y = []
@@ -364,17 +373,9 @@ def regression(points_coordinates):
                 filtred_x.append(x[i])
         
         points_in_band.append(len(filtred_x))
-        #idx = [y.tolist().index(el) for el in y if (el > lim_inf) & (el < lim_sup)]
-        #filtred_y = np.array([el for el in y if (el > lim_inf) & (el < lim_sup)])     # modo compatto di creare un array con elementi selezionati
-        
-        #print("filtred x: " + str(filtred_x))
-        #print("filtred y: " + str(filtred_y))
         res = stats.linregress(filtred_x, filtred_y)
-        #print(res.slope)
-        #print(res.intercept)
         
         filtred_coordinates = []
-
         for i, x in enumerate(filtred_x):   # genera l'array dai due array delle coordinate x e y dei punti
             filtred_coordinates.append([x, filtred_y[i]])
     
@@ -388,7 +389,6 @@ def regression(points_coordinates):
 
 
 # Funzione che prende un immagine in ingresso, coordinate dei fori, coordinate del primo foro di ogni riga e restituisce quanti fori ci devono essere per ogni riga. 
-
 def check_lines(holes_coordinates, first_holes_coordinates, img_color):
     sorted_first_coordinates = sorted(first_holes_coordinates, key=lambda x: (x[1],x[0]))  # ordina le coordinate secondo la y. 
     height, width = img_color.shape[0:2]
@@ -401,31 +401,22 @@ def check_lines(holes_coordinates, first_holes_coordinates, img_color):
             lim_sup = 0
             lim_inf = (sorted_first_coordinates[1][1] - sorted_first_coordinates[0][1]) / 2 + sorted_first_coordinates[0][1]
             band_limits.append((lim_sup, lim_inf))
-            #print("Lim sup: " + str(lim_sup))
-            #print("Punto centrale: " + str(sorted_first_coordinates[0][1]))
-            #print("Lim inf: " + str(lim_inf))
         
         if (i > 0) & (i < (len(sorted_first_coordinates) - 1)):
             lim_sup = band_limits[i - 1][1]
             lim_inf = (sorted_first_coordinates[i + 1][1] - sorted_first_coordinates[i][1]) / 2 + sorted_first_coordinates[i][1]
             band_limits.append((lim_sup, lim_inf))
-            #print("Lim sup: " + str(lim_sup))
-            #print("Punto centrale: " + str(sorted_first_coordinates[i][1]))
-            #print("Lim inf: " + str(lim_inf))
-        
+
         if (i == (len(sorted_first_coordinates) - 1)):
             lim_sup = band_limits[i - 1][1]
             lim_inf = height
             band_limits.append((lim_sup, lim_inf))
-            #print("Lim sup: " + str(lim_sup))
-            #print("Punto centrale: " + str(sorted_first_coordinates[i][1]))
-            #print("Lim inf: " + str(lim_inf))
-    
+
     total_coordinates = []  # array di coordinate dei punti nelle fascia di controllo della singola immagine (inutile)
     number_of_points = []   # array dei numeri di punti trovati in ogni 
     for i, (sup, inf) in enumerate(band_limits):
-        cv2.line(img_color,(0, round(sup)) , (width, round(sup)),(0, 255, 0) ,1)  # limite superiore
-        cv2.line(img_color,(0, round(inf)) , (width, round(inf)),(0, 255, 0) ,1)  # limite inferiore
+        cv2.line(img_color,(0, int(round(sup))) , (width, int(round(sup))),(0, 255, 0) ,1)  # limite superiore
+        cv2.line(img_color,(0, int(round(inf))) , (width, int(round(inf))),(0, 255, 0) ,1)  # limite inferiore
         
         band_coordinates = []  # salva le coordinate dei punti nella fascia di controllo
         for (x, y) in holes_coordinates:
@@ -433,23 +424,11 @@ def check_lines(holes_coordinates, first_holes_coordinates, img_color):
                 band_coordinates.append([x, y])
 
         band_coordinates_sorted = sorted(band_coordinates, key=lambda x: (x[0],x[0]))  # ordina le coordinate nella fascia secondo le x
-        #print("Le cordinate nella " + str(i) + "esima riga sono: " + str(band_coordinates_sorted))
         points_in_band, filtred_coordinates = regression(band_coordinates_sorted)
         number_of_points = number_of_points + points_in_band       # aggiunge il numero di punti trovati su ogni riga
         total_coordinates.append(filtred_coordinates)
-        #print("Le coordinate della fascia sono : " + str(filtred_coordinates))
-        #save_file("array.txt", filtred_coordinates)
-    
-    #print("La lista dei punti trovati: " + str(number_of_points))
-    #save_file("array.txt", "\n")
+
     return img_color, number_of_points, total_coordinates
-
-
-# Funzione per il salvataggio (append) su file.
-def save_file(file_name, elements):
-    file = open(file_name, 'a+')
-    file.write(str(elements) + '\n')
-    file.close()
 
 
 # Calcola il valore più alto di un numero in una lista e la frequenza con cui è presente
@@ -468,10 +447,12 @@ def frequency(my_list):
     return max_key, frequency   # restituisce il valore più alto e la frequenza percentuale
 
 
+# Applica le deviazioni standard.
+# Imput: 4-D array, numero di fori per riga
+# Output: vettore distanze tra ogni coppia di fori contigui, mediana delle distanze e distanza minima rilevata.
 def distance_x(array, max_points):
     
     distances = []
-    
     for image in array:
         
         for line in image:
@@ -514,9 +495,13 @@ def recognition():
             time.sleep(0.75)
             cv2.waitKey(1)
         
+        
         else:
             print("WARNING! Non arriva il segnale dalla videocamera.")
-
+    
+    cv2.destroyWindow('preview') #.....................................................Chiude la vinestra di visualizzazione immagini
+    
+    
     total_coordinates = []
     detecting = []
     times = []
@@ -530,7 +515,8 @@ def recognition():
         image, points_per_band, coordinates = check_lines(holes_coordinates, first_holes_coordinates, img_color)  # restituisce quanti fori                                                                                                                                sono presenti in ogni fascia                                                                                                                           dell'immagine
         total_points =  total_points + points_per_band
         total_coordinates.append(coordinates)
-        cv2.imshow("try", image)
+        cv2.imshow("Original Image", img)
+        cv2.imshow("AI comput", image)
         cv2.waitKey(1)
         # Progress bar. 
         # Questo pezzo di codice va inserito nel punto in cui si vuole aggiornare la progress bar.
@@ -538,11 +524,14 @@ def recognition():
         progress_bar['value'] = b 
         objects_frame.update_idletasks()
     
+    cv2.destroyAllWindows()
+    
     total_points.sort()
     max_value, _ = frequency(total_points)
     _, _, min_distance = distance_x(total_coordinates, max_value)
+    check_recognition = True
     
-    return True, min_distance
+    return check_recognition, max_value, round(min_distance, 1)
 
 
 ################################################################################################
@@ -550,6 +539,7 @@ def recognition():
 ################################################################################################
 def pi_setup():
     GPIO.setmode(GPIO.BOARD)   # Assegna ai pin la numerazione convenzionale. Usare "GPIO.setmode(GPIO.BCM)" per la numerazione hardware.
+    GPIO.setwarnings(False)
     
     global dir_distensori, pull_distensori, dir_tensionatore, pull_tensionatore, dir_allineamento, pull_allineamento, dir_videocamera, pull_videocamera
     global bobina_mobile, bobina_fissa, bobina_distensione
@@ -625,8 +615,7 @@ def pi_setup():
     global pos
     pos = [inizio_distensione, inizio_tensionamento, inizio_allinemanento , inizio_videocamera, inizio_focus] #....contatore passi
         
-    global Setting
-    Setting = True
+    return True
     
 
 # Esegue le seguenti operazioni:
@@ -634,25 +623,15 @@ def pi_setup():
 # - controlla la GPIO. Se è piena la svuota. Se è vuota la carica
 # - restituisce un True
 def setting():
-    global set_holes, set_force
+    global set_holes, set_force, check_setting
     set_holes = holes_number.get()
     set_force = forza_tiraggio.get()
     clear(buttons_frame)
     tk.Button(buttons_frame, text="START", command=start, padx=98).grid(row=0, column=0)
-    print(set_holes, set_force)
     
-    try:
-        GPIO.cleanup()
+    pi_setup() # Armamento bobine
+    
 
-    except:
-        print("GPIO full.")
-        #GPIO.cleanup()
-        time.sleep(100)
-        pi_setup()
-        print("setup avvenuto al secondo tentativo")
-    else:
-        pi_setup()
-    
     clear(message_frame)
     tk.Label(message_frame, text="RESET MOTORI IN ESECUZIONE...").grid(row=0, column=0)
     stepR(7) # reset di tutti i motori
@@ -661,7 +640,7 @@ def setting():
     clear(message_frame)
     tk.Label(message_frame, text="SISTEMA PRONTO." + "\n\n" + "PREMERE START PER AVVIARE").grid(row=0, column=0)
     
-    return True, set_holes, set_force
+    check_setting = True
 
 ################################################################################################
 ##########################################  MAIN  ##############################################
@@ -674,11 +653,11 @@ def setting():
 # - esegue tiraggio restituisce: parametro
 # - sgancio e rimozione
 def start():
-    check_setting, set_holes, set_force = setting()
     if (check_setting == True):
         clear(objects_frame)
         clear(buttons_frame)
         
+        global progress_bar
         progress_bar = Progressbar(objects_frame, orient="horizontal", mode="determinate", maximum=100, value=0)
         progress_bar.grid(row=0, column=1)
         
@@ -687,17 +666,22 @@ def start():
         
         clear(message_frame)
         tk.Label(message_frame, text="RICONOSCIMENTO IN CORSO...").grid(row=0, column=0)
-        min_dist = recognition()
+        stepC(150, 0) # Distensione
+        check_recognition, holes, min_dist = recognition()
+        print("Il numero di fori per linea:  " + str(holes))
+        print("La distanza minima tra i fori è: "  + str(min_dist))
         clear(message_frame)
         tk.Label(message_frame, text="RICONOSCIMENTO COMPLETATO").grid(row=0, column=0)
+        progress_bar['value'] = 0
         
         '''for i in range(0, 100, 1):
             progress_bar['value'] = i
             objects_frame.update_idletasks() 
             time.sleep(0.01)'''
         
-        clear(message_frame)
-        tk.Label(message_frame, text="ALLINEAMENTO IN CORSO...").grid(row=0, column=0)
+        '''clear(message_frame)
+        tk.Label(message_frame, text="ALLINEAMENTO IN CORSO...").grid(row=0, column=0)'''
+        GPIO.cleanup()
     
 
 ################################################################################################
@@ -725,6 +709,15 @@ tk.Scale(objects_frame, label="FORZA TENSIONAMENTO (kg)", from_=0, to=200, bg="w
 tk.Button(objects_frame, text="CONFERMA PARAMETRI", command=setting, padx=98).grid(row=2, column=0) # pulsante conferma
  
 tk.mainloop()
+
+
+
+
+
+
+
+
+
 
 
 
