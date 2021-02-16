@@ -74,7 +74,7 @@ GPIO.setup(laser, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 dirP = (31, 36, 40, 35)
 stepperP = (29, 37, 38, 33)
-microP = (10000, 50, 500, 80)  # Tempo in microsecondi tra due step
+microP = (10000, 50, 500, 100)  # Tempo in microsecondi tra due step
 
 # Posizione iniziale motore in step
 inizio_distensione = 0
@@ -133,7 +133,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     # Posizione 2 ---> motore allineamento
     # Posizione 3 ---> motore videocamera
     
-    microR = (1000, 100, 500, 70)  # Setta la velocità di reset
+    microR = (1000, 100, 500, 100)  # Setta la velocità di reset
     micro0 = microR[0]
     micro1 = microR[1]
     micro2 = microR[2]
@@ -198,7 +198,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
 global cap, switch, count
-cap = cv2.VideoCapture(1) # We turn the webcam on.
+cap = cv2.VideoCapture(0) # We turn the webcam on.
 switch = True
 count = 0
 
@@ -232,7 +232,8 @@ def switch_off():
     
 def start():
     global count
-    stepC(1000, 3)
+    number = round(640 * 3.19444444444)
+    stepC(number, 3)
     #stepC(80000, 1)
     '''for i in range(0, 225):
         count = count + 335  

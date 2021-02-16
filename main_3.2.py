@@ -150,7 +150,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     # Reset motore focus videocamera
     if (steptypeR == 4):    
         while (GPIO.input(proxy_focus) == True):
-            moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step
+            moveStep2(0,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step
           
         pos[4]=0
     
@@ -174,7 +174,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
             GPIO.output(stepperP[3], GPIO.LOW)
             time.sleep(microR[3]/1000000)
         while (GPIO.input(proxy_focus) == True):
-            moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. '''
+            moveStep2(0,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. '''
         
         pos[0]=0
         pos[1]=0
@@ -263,7 +263,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
         #------------------------------------------------------------------------------------------------------------------------------
         #Reset focus
         while (GPIO.input(proxy_focus) == True):
-            moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step
+            moveStep2(0,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step
         
         pos[0]=0
         pos[1]=0
@@ -382,7 +382,7 @@ def regression(points_coordinates):
     if len(coordinates_x) == 1: # se nella fascia è presente solo un punto
         filtred_x = coordinates_x
         filtred_y = coordinates_y
-        filtred_coordinates = [filtred_x[0], filtred_y[0]]
+        filtred_coordinates = [[filtred_x[0], filtred_y[0]]]
         points_in_band.append(len(filtred_x))
 
     return points_in_band, filtred_coordinates
@@ -486,12 +486,13 @@ def recognition():
     images = [] #......................................................................Array dove vengono salvate le immagini  
     for i in range(0,30):   
         stepC(step_count, 3)
-        step_count = step_count + 2000
+        step_count = step_count + 2045
         time.sleep(0.75)
         ret,frame = cap.read() #.......................................................Legge il frame della videocamera
         
         if ret == True:
             cv2.imshow('preview',frame) #..............................................Output immagine che deve essere salvata
+            cv2.imwrite('/home/pi/Desktop/campionamento/black/capture_test_2/' + str(i+1) + '.jpg', frame)
             images.append(frame)  #....................................................Aggiunge le immagini all'array per la successiva elaborazione
             count = count + 1
             time.sleep(0.75)
@@ -637,7 +638,7 @@ def setting():
     clear(message_frame)
     tk.Label(message_frame, text="RESET MOTORI IN ESECUZIONE...").grid(row=0, column=0)
     stepR(7) # reset di tutti i motori
-    moveStep2(0,8,105)
+    moveStep2(1,3,440)
     
     clear(message_frame)
     tk.Label(message_frame, text="SISTEMA PRONTO." + "\n\n" + "PREMERE START PER AVVIARE").grid(row=0, column=0)

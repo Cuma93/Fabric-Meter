@@ -152,7 +152,7 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
           GPIO.output(stepperP[3], GPIO.LOW)
           time.sleep(micro3/1000000)'''
         while (GPIO.input(proxy_focus) == True):
-          moveStep2(1,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
+          moveStep2(0,3,1)    # prende in ingresso: direzione (0/1), millisecondi (3 è il limite minimo di sicurezza), numero di step. 
         
     pos[0]=0
     pos[1]=0
@@ -161,32 +161,34 @@ def stepR (steptypeR):                # Steptype è il metodo di reset. Eventual
     pos[4]=0
     
     #print("Il sistema è pronto.")
+
 #______________________________________________________________________________________
 #
 # AVVIO CICLO MACCHINA
 #______________________________________________________________________________________
+cap = cv2.VideoCapture(0) # We turn the webcam on.
 
 #time.sleep(5)
 GPIO.output(bobina_distensione, GPIO.LOW)
 #stepR(0)
 #time.sleep(0.5)
-moveStep2(0,8,90)
+moveStep2(1,3,440)
 time.sleep(25)
 stepC(150, 0)
 time.sleep(5)
 
 
-cap = cv2.VideoCapture(0) # We turn the webcam on.
+
 
 count = 0
 step_count=1000
 for i in range (0,30):
-#while True:    
+#while True:
+	ret,frame = cap.read()
     stepC(step_count, 3)
     step_count = step_count + 1000
     #time.sleep(0.75)
     #stepC(1, 3)
-    ret,frame = cap.read()
     #height, width, _ = frame.shape
     #canvas1 = cv2.line(frame,(round(width/2), 0),(round(width/2), height),(0,255,0),1)  # linea verticale
     #canvas2 = cv2.line(canvas1,(0, round(height/2)),(width, round(height/2)),(0,255,0),1)   # linea orizzonatale
