@@ -184,7 +184,7 @@ count = 0
 step_count=1000
 for i in range (0,30):
 #while True:
-	ret,frame = cap.read()
+    ret,frame = cap.read()
     stepC(step_count, 3)
     step_count = step_count + 1000
     #time.sleep(0.75)
@@ -211,10 +211,11 @@ for i in range (0,30):
     
     
     if cv2.waitKey(1) & 0xFF == ord('q'): # If we type on the keyboard:
-	    #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
-	    break # We stop the loop.
-	
+        #print("L'immagine è " + str(height) + "x" + str(width))  #stampa le dimensioni del frame
+        break # We stop the loop.
+    
 cap.release() # We turn the webcam off.
 cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.a
 
 GPIO.cleanup()
+

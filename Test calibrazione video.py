@@ -207,6 +207,10 @@ def video():
         
         while(switch == True):
             _,frame = cap.read()
+            height, width = frame.shape[0:2]
+            cv2.line(frame,(0, round(height/2)) , (width, round(height/2)),(0, 255, 0) ,1)  # linea mezzeria
+            cv2.line(frame,(0, round(height/2 +30)) , (width, round(height/2 +30)),(0, 255, 0) ,1)
+            cv2.line(frame,(0, round(height/2 -30)) , (width, round(height/2 -30)),(0, 255, 0) ,1)
             cv2.imshow('preview',frame) # We display the outputs.
             cv2.waitKey(1)
             
@@ -232,8 +236,9 @@ def switch_off():
     
 def start():
     global count
-    number = round(640 * 3.19444444444)
-    stepC(number, 3)
+    ret,frame = cap.read()
+    number = 55000
+    stepC(125000, 3)
     #stepC(80000, 1)
     '''for i in range(0, 225):
         count = count + 335  
@@ -246,11 +251,12 @@ def start():
     #GPIO.cleanup()
 
 def reset():
-    stepR(1)
-    stepR(3)
+    #GPIO.output(bobina_fissa, GPIO.LOW)
+    #stepR(1)
+    #stepR(3)
     stepR(4)
     time.sleep(0.5)
-    moveStep2(1,3,440)
+    moveStep2(1,3,445)
     
 def kill():
     global switch
@@ -301,6 +307,8 @@ tk.Button(objects_frame, text="TEST AFFIDABILITÀ VIDEO", command=video_rel, fon
 tk.Button(objects_frame, text="CLOSE", command=kill, font=helv36, padx=98).grid(row=5, column=0)
 
 tk.mainloop()
+
+
 
 
 
