@@ -714,22 +714,21 @@ def fast_alignment(max_holes):
         for i in range(0, 5):
             ret, frame = cap.read() #......................................................Legge il frame della videocamera
         
-        if counter > 0:
-            dynamic_sup_lim = first_point[1] - 40 #............................................Limite superiore fascia di controllo dinamica
-            dynamic_inf_lim = first_point[1] + 40 #............................................Limite inferiore fascia di controllo dinamica
-
         if counter % 3 == 0 :
             thresholded_img, threshold_value = best_filtering(frame)
             coordinates, starting_points_coord, frame_color = detect_hole(thresholded_img)
-            first_point, second_point, secondLast_point, last_point, row_coordinates = middleR_perform(frame_color, coordinates, dynamic_sup_lim, inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
+            first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
 
         else:
              simple_thresholded_img = filtering(frame, threshold_value)
              coordinates, starting_points_coord, frame_color = detect_hole(simple_thresholded_img)
-             first_point, second_point, secondLast_point, last_point, row_coordinates = middleR_perform(frame_color, coordinates, dynamic_sup_lim, inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
+             first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
         
         counter = counter + 1
 
+        dynamyc_sup_lim = first_point[1] - 40
+        dynamic_sup_lim = first_point[1] + 40
+        _, _, _, _, row_coordinates = middleR_perform(frame_color, coordinates, dynamyc_sup_lim, dynamic_sup_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
         m, q = regression_perform(row_coordinates, frame_color) # restituisce il coefficiente angolare m e il termine noto q della retta di regressione (y = mx + q)
         cv2.line(frame_color,(0, int(static_sup_lim)) , (640, int(static_sup_lim)),(255, 255, 0) ,1)  # linea superiore (giallo)
         cv2.line(frame_color,(0, int(static_inf_lim)) , (640, int(static_inf_lim)),(255, 255, 0) ,1)  # linea inferiore (giallo)
