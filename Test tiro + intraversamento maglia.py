@@ -381,7 +381,75 @@ def switch_off():
     global switch
     switch = False
     video()
+
+def distensione():
+	stepC(198, 0) # Distensione
+
+def tensionamento():
+    contatore_tensionamento = pos[1]
+    contatore_tensionamento = contatore_tensionamento + 1000
+    stepC(contatore_tensionamento,1)
+    print(pos[1])
     
+def avanzamento_video():
+    contatore_video = pos[3]
+    contatore_video = contatore_video + 1000
+    stepC(contatore_video,3)
+    print(pos[3])
+
+def ritorno_video():
+    contatore_video = pos[3]
+    contatore_video = contatore_video - 1000
+    stepC(contatore_video,3)
+    print(pos[3])
+
+def reset():
+    #GPIO.output(bobina_fissa, GPIO.LOW)
+    stepR(1)
+    stepR(0)
+    stepR(3)
+    #stepR(4)
+    #time.sleep(0.5)
+    #moveStep2(1,3,440)
+
+def alza_bobine_tens():
+	GPIO.output(bobina_mobile, GPIO.LOW)
+	GPIO.output(bobina_fissa, GPIO.LOW)
+
+def alza_bobina_mobile():
+	GPIO.output(bobina_mobile, GPIO.LOW)
+
+def reset_distensione():
+    stepR(0)
+
+def reset_bobine_centrali():
+	GPIO.output(bobina_mobile, GPIO.HIGH)
+	GPIO.output(bobina_fissa, GPIO.HIGH)
+
+def assestamento_distensione():
+	posizione = pos[0]
+	for i in range(0,4):
+		posizione = posizione - 15
+		stepC(posizione, 0)
+		time.sleep(0.1)
+		posizione = posizione + 15
+		stepC(posizione, 0)
+		time.sleep(0.1)
+
+def reset_alignment():
+    stepR(2)
+    stepR(0)
+
+def assestamento_tensionamento():
+	posizione = pos[1]
+	for i in range(0,4):
+		posizione = posizione - 500
+		stepC(posizione, 1)
+		time.sleep(0.1)
+		posizione = posizione + 500
+		stepC(posizione, 1)
+		time.sleep(0.1)
+	
 def down():
     contatore_allineamento = pos[2]
     stepC(190, 0) # Distensione
@@ -389,11 +457,6 @@ def down():
     contatore_allineamento = contatore_allineamento + 20
     stepC(contatore_allineamento,2)
     print(pos[2])
-
-    #cap.release() # We turn the webcam off.
-    #cv2.destroyAllWindows() # We destroy all the windows inside which the images were displayed.a
-
-    #GPIO.cleanup()
 
 def up():
     contatore_allineamento = pos[2]
@@ -403,30 +466,6 @@ def up():
     stepC(contatore_allineamento,2)
     print(pos[2])
 
-def reset():
-    #GPIO.output(bobina_fissa, GPIO.LOW)
-    #stepR(1)
-    #stepR(3)
-    stepR(4)
-    time.sleep(0.5)
-    moveStep2(1,3,445)
-
-def alza_bobine():
-    GPIO.output(bobina_distensione, GPIO.LOW)
-
-def alza_bobine_tens():
-	GPIO.output(bobina_mobile, GPIO.LOW)
-	GPIO.output(bobina_fissa, GPIO.LOW)
-
-def reset_alignment():
-    stepR(2)
-    stepR(0)
-
-def reset_bobine_centrali():
-	GPIO.output(bobina_mobile, GPIO.HIGHT)
-	GPIO.output(bobina_fissa, GPIO.HIGHT)
-
-    
 def kill():
     global switch
     switch = False
@@ -470,13 +509,20 @@ message_frame.grid(row=2, column=0)
 # Pulsanti nella schermata iniziale
 tk.Button(objects_frame, text="VIDEO ON", command=switch_on, font=helv36, padx=98).grid(row=0, column=0) # pulsante conferma
 tk.Button(objects_frame, text="VIDEO OFF", command=switch_off, font=helv36, padx=110).grid(row=1, column=0) # pulsante conferma
-tk.Button(objects_frame, text="RESET ALLINEAMENTO", command=reset_alignment,  font=helv36, padx=155).grid(row=2, column=0) # pulsante conferma
-tk.Button(objects_frame, text="MAGLIA VERSO IL BASSO", command=down, font=helv36, padx=141).grid(row=3, column=0)
+tk.Button(objects_frame, text="ASSESTAMENTO TENSIONAMENTO", command=assestamento_tensionamento, font=helv36, padx=110).grid(row=2, column=0)
+tk.Button(objects_frame, text="ASSESTAMENTO DISTENSIONE", command=assestamento_distensione, font=helv36, padx=110).grid(row=3, column=0)
 tk.Button(objects_frame, text="MAGLIA VERSO L'ALTO", command=up, font=helv36, padx=141).grid(row=4, column=0)
-tk.Button(objects_frame, text="ALZA BOBINE", command=alza_bobine, font=helv36, padx=141).grid(row=5, column=0)
-tk.Button(objects_frame, text="ALZA BOBINE CENTRALI", command=alza_bobine_tens, font=helv36, padx=141).grid(row=6, column=0)
-tk.Button(objects_frame, text="RESET BOBINE CENTRALI", command=reset_bobine_centrali, font=helv36, padx=98).grid(row=7, column=0)
-tk.Button(objects_frame, text="CLOSE", command=kill, font=helv36, padx=98).grid(row=8, column=0)
+tk.Button(objects_frame, text="MAGLIA VERSO IL BASSO", command=down, font=helv36, padx=141).grid(row=5, column=0)
+tk.Button(objects_frame, text="DISTENSIONE", command=distensione, font=helv36, padx=141).grid(row=6, column=0)
+tk.Button(objects_frame, text="TENSIONAMENTO", command=tensionamento, font=helv36, padx=141).grid(row=7, column=0)
+tk.Button(objects_frame, text="ALZA BOBINE CENTRALI", command=alza_bobine_tens, font=helv36, padx=141).grid(row=8, column=0)
+tk.Button(objects_frame, text="ABBASSA BOBINE CENTRALI", command=reset_bobine_centrali, font=helv36, padx=141).grid(row=9, column=0)
+tk.Button(objects_frame, text="ALZA BOBINA MOBILE", command=alza_bobina_mobile, font=helv36, padx=141).grid(row=10, column=0)
+tk.Button(objects_frame, text="RESET ALLINEAMENTO", command=reset_alignment, font=helv36, padx=98).grid(row=11, column=0)
+tk.Button(objects_frame, text="AVANZAMENTO VIDEO", command=avanzamento_video, font=helv36, padx=141).grid(row=12, column=0)
+tk.Button(objects_frame, text="RITORNO VIDEO", command=ritorno_video, font=helv36, padx=98).grid(row=13, column=0)
+tk.Button(objects_frame, text="RESET", command=reset, font=helv36, padx=98).grid(row=14, column=0)
+tk.Button(objects_frame, text="CLOSE", command=kill, font=helv36, padx=98).grid(row=15, column=0)
 
 tk.mainloop()
 

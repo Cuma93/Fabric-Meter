@@ -333,7 +333,7 @@ def best_filtering(img):
     median = cv2.medianBlur(averaging, 25)
     
     threshold_record = []
-    for val in range(60, 170, 5):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
+    for val in range(30, 170, 5):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
         ret, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY)
         holes_coordinates, _, color = detect_hole(threshold)  # holes_number è il numero dei fori identificati
         threshold_record.append((val, len(holes_coordinates)))  # associa ad un valore di threshold, il corrispettivo numero di fori identificati
@@ -422,7 +422,7 @@ def regression_perform(points_coordinates, img):
     p2 = (800, round(res.slope*800 + res.intercept))
     cv2.line(img,(int(p1[0]), int(p1[1])) , (int(p2[0]), int(p2[1])),(0, 255, 0) ,2)  # linea regressione
     
-    return res.slope, res.intercept
+    return round(res.slope, 3), res.intercept
 
 
 # Funzione che prende un immagine in ingresso, coordinate dei fori, coordinate del primo foro di ogni riga e restituisce quanti fori ci devono essere per ogni riga. 
@@ -673,7 +673,7 @@ def middleR_perform(img, coordinates, Y_max, Y_min):
         if (y < Y_min and y > Y_max):
             selected_coord.append([x, y])
     
-    print("Selected_coord" + str(selected_coord))
+    #print("Selected_coord" + str(selected_coord))
     transformed = np.array(selected_coord) #.........................................................Trasforma l'array su più righe per la trasformazione
     matrix = transformed[np.lexsort(np.transpose(transformed)[::-1])] #...............Ordina il vettore 2-D di coordinate secondo la x e, nel caso di x uguale, secondo la y
     
@@ -681,16 +681,16 @@ def middleR_perform(img, coordinates, Y_max, Y_min):
     for x, y in matrix:
         selected_coord_sorted.append([x, y])
         
-    print("Selected_coord_sorted" + str(selected_coord_sorted))
+    #print("Selected_coord_sorted" + str(selected_coord_sorted))
     first = selected_coord_sorted[0]
     second = selected_coord_sorted[1]
     secondLast = selected_coord_sorted[len(selected_coord_sorted) - 2]
     last = selected_coord_sorted[len(selected_coord_sorted) - 1]
     
     cv2.circle(img,(int(first[0]), int(first[1])), 5, (0, 0, 255), 2) #..............................Evidenzia il primo foro della riga
-    cv2.circle(img,(int(second[0]), int(second[1])), 5, (0, 102, 204), 2) #............................Evidenzia il secondo foro della riga
-    cv2.circle(img,(int(secondLast[0]), int(secondLast[1])), 5, (0, 204, 204), 2) #..................Evidenzia il penultimo foro della riga
-    cv2.circle(img,(int(last[0]), int(last[1])), 5, (0, 255, 255), 2) #................................Evidenzia l'ultimo foro della riga
+    #cv2.circle(img,(int(second[0]), int(second[1])), 5, (0, 102, 204), 2) #............................Evidenzia il secondo foro della riga
+    #cv2.circle(img,(int(secondLast[0]), int(secondLast[1])), 5, (0, 204, 204), 2) #..................Evidenzia il penultimo foro della riga
+    #cv2.circle(img,(int(last[0]), int(last[1])), 5, (0, 255, 255), 2) #................................Evidenzia l'ultimo foro della riga
     
     # Disegna il range di controllo
     cv2.line(img,(0, int(Y_max)) , (width, int(Y_max)),(255, 0, 255) ,1) #.............Linea superiore
@@ -701,65 +701,80 @@ def middleR_perform(img, coordinates, Y_max, Y_min):
 
 
 def fast_alignment(max_holes):
+    global hole_cascade
+    hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
     state_check = False
     center_needles = 480/2 + 10 #..............................................Settaggio del centro delle bobine in direz. verticale
-    static_sup_lim = center_needles - 40 #............................................Limite superiore fascia di controllo permanente
-    static_inf_lim = center_needles + 40 #............................................Limite inferiore fascia di controllo permanente
+    static_sup_lim = center_needles - 45 #............................................Limite superiore fascia di controllo permanente
+    static_inf_lim = center_needles + 45 #............................................Limite inferiore fascia di controllo permanente
     counter = 0 # contatore di cicli    
     aligner_position_counter = pos[2]
     video_position_counter = pos[3]
+    j = 1
 
     while (GPIO.input(proxy_videocamera) == True):
         
         for i in range(0, 5):
             ret, frame = cap.read() #......................................................Legge il frame della videocamera
         
-        if counter % 3 == 0 :
-            thresholded_img, threshold_value = best_filtering(frame)
-            coordinates, starting_points_coord, frame_color = detect_hole(thresholded_img)
-            first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
+        if counter % 30 == 0 :
+            if ret == True:
+                thresholded_img, threshold_value = best_filtering(frame)
+                coordinates, starting_points_coord, frame_color = detect_hole(thresholded_img)
+                first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
 
         else:
-             simple_thresholded_img = filtering(frame, threshold_value)
-             coordinates, starting_points_coord, frame_color = detect_hole(simple_thresholded_img)
-             first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
-        
+            if ret == True:
+                simple_thresholded_img = filtering(frame, threshold_value)
+                coordinates, starting_points_coord, frame_color = detect_hole(simple_thresholded_img)
+                first_point, second_point, secondLast_point, last_point, _ = middleR_perform(frame_color, coordinates, static_sup_lim, static_inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
+            
         counter = counter + 1
 
-        dynamyc_sup_lim = first_point[1] - 40
-        dynamic_sup_lim = first_point[1] + 40
-        _, _, _, _, row_coordinates = middleR_perform(frame_color, coordinates, dynamyc_sup_lim, dynamic_sup_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
+        dynamyc_sup_lim = first_point[1] - 30
+        dynamic_sup_lim = first_point[1] + 30
+        _, _, _, last_point, row_coordinates = middleR_perform(frame_color, coordinates, dynamyc_sup_lim, dynamic_sup_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
         m, q = regression_perform(row_coordinates, frame_color) # restituisce il coefficiente angolare m e il termine noto q della retta di regressione (y = mx + q)
+        
         cv2.line(frame_color,(0, int(static_sup_lim)) , (640, int(static_sup_lim)),(255, 255, 0) ,1)  # linea superiore (giallo)
         cv2.line(frame_color,(0, int(static_inf_lim)) , (640, int(static_inf_lim)),(255, 255, 0) ,1)  # linea inferiore (giallo)
-        cv2.line(frame_color,(0, int(static_sup_lim)) , (640, int(static_sup_lim)),(255, 0, 255) ,1)  # linea superiore (magenta)
-        cv2.line(frame_color,(0, int(static_inf_lim)) , (640, int(static_inf_lim)),(255, 0, 255) ,1)  # linea inferiore (magenta)
-
-        if (- 0.04 < m) and (m < 0.04):
+        cv2.circle(frame_color,(int(last_point[0]), int(last_point[1])), 5, (0, 255, 255), 2) #................................Evidenzia l'ultimo foro della riga
+        #cv2.line(frame_color,(0, int(dynamic_sup_lim)) , (640, int(dynamic_sup_lim)),(255, 0, 255) ,1)  # linea superiore (magenta)
+        #cv2.line(frame_color,(0, int(dynamic_sup_lim)) , (640, int(dynamic_sup_lim)),(255, 0, 255) ,1)  # linea inferiore (magenta)
+        print("Coefficiente angolare. " + str(m))
+        # Inizializza l'output video solo il primo ciclo
+        if j == 1:
+    
+            for i in range(0, 15):
+                cv2.imshow("Alignment", frame_color)
+                cv2.waitKey(1)
+            j = 2
+            
+        
+        if (- 0.015 < m) and (m < 0.015):
+            
             distance_x = last_point[0] - (640 / (max_holes * 2)) #.......Distanza x tra la posizione reale e quella ideale in cui si vuole portare l'ultimo punto a sx. 
             feeding_video = round(distance_x * 3.19444444444) # traduce i pixels in avanzamento motore considerando motori con 800steps/giro e rapporto di ingranaggio specifico
             video_position_counter = video_position_counter - feeding_video
             print(79000 - video_position_counter)
             cv2.imshow("Alignment", frame_color)
             stepC(video_position_counter, 3)
+            time.sleep(0.05)
             cv2.imshow("Alignment", frame_color)
             cv2.waitKey(1)
+            counter = 0
 
-        if (m > 0.04):
-            print("Punto 3.1")
-            aligner_position_counter = aligner_position_counter - 2
+        if (m > 0.015):
+            aligner_position_counter = aligner_position_counter - 3
             stepC(aligner_position_counter, 2)
-            for i in range(0, 5):
-                cv2.imshow("Alignment", frame_color)
-                cv2.waitKey(1)
+            cv2.imshow("Alignment", frame_color)
+            cv2.waitKey(1)
         
-        if (m < -0.04):
-            print("Punto 3.2")
-            aligner_position_counter = aligner_position_counter + 2
+        if (m < -0.015):
+            aligner_position_counter = aligner_position_counter + 3
             stepC(aligner_position_counter, 2)
-            for i in range(0, 5):
-                cv2.imshow("Alignment", frame_color)
-                cv2.waitKey(1)
+            cv2.imshow("Alignment", frame_color)
+            cv2.waitKey(1)
 
     state_check = True
 
@@ -922,8 +937,8 @@ def start():
         clear(message_frame)
         tk.Label(message_frame, text="ALLINEAMENTO IN CORSO...").grid(row=0, column=0)
         
-        stepC(72000, 3) # Posizionamneto videocamera
-        check_fast_alignment = fast_alignment(6, Y_max, Y_min)
+        stepC(70000, 3) # Posizionamneto videocamera
+        check_fast_alignment = fast_alignment(6)
           
         if check_fast_alignment == True:
             clear(message_frame)
@@ -957,6 +972,11 @@ tk.Scale(objects_frame, label="FORZA TENSIONAMENTO (kg)", from_=0, to=200, bg="w
 tk.Button(objects_frame, text="CONFERMA PARAMETRI", command=setting, padx=98).grid(row=2, column=0) # pulsante conferma
  
 tk.mainloop()
+
+
+
+
+
 
 
 
