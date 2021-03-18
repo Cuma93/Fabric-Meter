@@ -65,7 +65,7 @@ def best_filtering(img):
     median = cv2.medianBlur(averaging, 25)
     
     threshold_record = []
-    for val in range(60, 170, 5):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
+    for val in range(30, 170, 5):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
         ret, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY)
         holes_coordinates, _, color = detect_hole(threshold)  # holes_number è il numero dei fori identificati
         threshold_record.append((val, len(holes_coordinates)))  # associa ad un valore di threshold, il corrispettivo numero di fori identificati

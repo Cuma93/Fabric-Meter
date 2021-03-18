@@ -819,7 +819,7 @@ def main():
         
         clear(message_frame)
         tk.Label(message_frame, text="RICONOSCIMENTO IN CORSO...").grid(row=0, column=0)
-        stepC(150, 0) # Distensione
+        stepC(190, 0) # Distensione
         check_recognition, holes, min_dist = recognition()
         print("Il numero di fori per linea:  " + str(holes))
         print("La distanza minima tra i fori è: "  + str(min_dist))
@@ -830,7 +830,7 @@ def main():
         if check_recognition == True:
             clear(message_frame)
             tk.Label(message_frame, text="ALLINEAMENTO IN CORSO...").grid(row=0, column=0)
-            check_first_alignment = first_alignment()
+            #check_first_alignment = first_alignment()
             #if check_first_alignment == True:
                 #check_fast_alignment = fast_alignment()
             GPIO.cleanup()

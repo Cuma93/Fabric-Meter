@@ -393,7 +393,7 @@ def tensionamento():
     
 def avanzamento_video():
     contatore_video = pos[3]
-    contatore_video = contatore_video + 1000
+    contatore_video = contatore_video + 200
     stepC(contatore_video,3)
     print(pos[3])
 

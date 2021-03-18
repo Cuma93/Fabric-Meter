@@ -174,7 +174,7 @@ GPIO.output(bobina_distensione, GPIO.LOW)
 #time.sleep(0.5)
 moveStep2(1,3,440)
 time.sleep(25)
-stepC(150, 0)
+stepC(190, 0)
 time.sleep(5)
 
 
