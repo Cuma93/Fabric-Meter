@@ -370,7 +370,15 @@ def video():
     
     thread = threading.Thread(target = video_on)
     thread.start()
-
+def start():
+    contatore_tensionamento = pos[1]
+    contatore_tensionamento = contatore_tensionamento + 20000
+    stepC(contatore_tensionamento,1)
+    print(pos[1])
+    contatore_video = pos[3]
+    contatore_video = contatore_video + 75400
+    stepC(contatore_video,3)
+    print(pos[3])
 
 def switch_on():
     global switch
@@ -383,7 +391,7 @@ def switch_off():
     video()
 
 def distensione():
-	stepC(198, 0) # Distensione
+    stepC(198, 0) # Distensione
 
 def tensionamento():
     contatore_tensionamento = pos[1]
@@ -408,48 +416,51 @@ def reset():
     stepR(1)
     stepR(0)
     stepR(3)
-    #stepR(4)
-    #time.sleep(0.5)
-    #moveStep2(1,3,440)
+
+    
+def reset_focus():
+    stepR(4)
+    time.sleep(0.5)
+    moveStep2(1,3,440)
 
 def alza_bobine_tens():
-	GPIO.output(bobina_mobile, GPIO.LOW)
-	GPIO.output(bobina_fissa, GPIO.LOW)
+    GPIO.output(bobina_mobile, GPIO.LOW)
+    GPIO.output(bobina_fissa, GPIO.LOW)
 
 def alza_bobina_mobile():
-	GPIO.output(bobina_mobile, GPIO.LOW)
+    GPIO.output(bobina_mobile, GPIO.LOW)
 
 def reset_distensione():
     stepR(0)
 
 def reset_bobine_centrali():
-	GPIO.output(bobina_mobile, GPIO.HIGH)
-	GPIO.output(bobina_fissa, GPIO.HIGH)
+    GPIO.output(bobina_mobile, GPIO.HIGH)
+    GPIO.output(bobina_fissa, GPIO.HIGH)
 
 def assestamento_distensione():
-	posizione = pos[0]
-	for i in range(0,4):
-		posizione = posizione - 15
-		stepC(posizione, 0)
-		time.sleep(0.1)
-		posizione = posizione + 15
-		stepC(posizione, 0)
-		time.sleep(0.1)
+    posizione = pos[0]
+    for i in range(0,4):
+        posizione = posizione - 15
+        stepC(posizione, 0)
+        time.sleep(0.1)
+        posizione = posizione + 15
+        stepC(posizione, 0)
+        time.sleep(0.1)
 
 def reset_alignment():
     stepR(2)
     stepR(0)
 
 def assestamento_tensionamento():
-	posizione = pos[1]
-	for i in range(0,4):
-		posizione = posizione - 500
-		stepC(posizione, 1)
-		time.sleep(0.1)
-		posizione = posizione + 500
-		stepC(posizione, 1)
-		time.sleep(0.1)
-	
+    posizione = pos[1]
+    for i in range(0,4):
+        posizione = posizione - 500
+        stepC(posizione, 1)
+        time.sleep(0.1)
+        posizione = posizione + 500
+        stepC(posizione, 1)
+        time.sleep(0.1)
+    
 def down():
     contatore_allineamento = pos[2]
     stepC(190, 0) # Distensione
@@ -521,10 +532,14 @@ tk.Button(objects_frame, text="ALZA BOBINA MOBILE", command=alza_bobina_mobile, 
 tk.Button(objects_frame, text="RESET ALLINEAMENTO", command=reset_alignment, font=helv36, padx=98).grid(row=11, column=0)
 tk.Button(objects_frame, text="AVANZAMENTO VIDEO", command=avanzamento_video, font=helv36, padx=141).grid(row=12, column=0)
 tk.Button(objects_frame, text="RITORNO VIDEO", command=ritorno_video, font=helv36, padx=98).grid(row=13, column=0)
-tk.Button(objects_frame, text="RESET", command=reset, font=helv36, padx=98).grid(row=14, column=0)
-tk.Button(objects_frame, text="CLOSE", command=kill, font=helv36, padx=98).grid(row=15, column=0)
+tk.Button(objects_frame, text="RESET FOCUS", command=reset_focus, font=helv36, padx=98).grid(row=14, column=0)
+tk.Button(objects_frame, text="RESET", command=reset, font=helv36, padx=98).grid(row=15, column=0)
+tk.Button(objects_frame, text="CLOSE", command=kill, font=helv36, padx=98).grid(row=16, column=0)
+tk.Button(objects_frame, text="START", command=start, font=helv36, padx=98).grid(row=17, column=0)
 
 tk.mainloop()
+
+
 
 
 

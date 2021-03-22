@@ -714,7 +714,7 @@ def last_shift(row_coordinates, max_holes, min_dist):
     for i in range(max_holes, 0, -1):
         distance_x = row_coordinates[i][0] - (640 / (max_holes * 2))
         feeding_video = round(distance_x * 3.19444444444)
-        if (pos[3] - feeding_video) > 600 - min_dist_feeding/2) and (pos[3] - feeding_video) < 600 + min_dist_feeding/2):
+        if ((pos[3] - feeding_video) > (600 - min_dist_feeding/2) and (pos[3] - feeding_video) < 600 + (min_dist_feeding/2)):
             break
     return distance_x
     
@@ -746,8 +746,8 @@ def doubled(row_coordinates, min_dist, img_color):
     if check == True:
         
         for point in mid_points:
-            cv2.line(img_color,(round(point[0][0]), round(point[0][1])) , (round(point[1][0]), round(point[1][1])),(0, 255, 0) ,1)
-            cv2.circle(img_color,(round(point[2][0]), round(point[2][1])), 2, (255, 0, 0), 2)
+            cv2.line(img_color,(int(round(point[0][0])), int(round(point[0][1]))) , (int(round(point[1][0])), int(round(point[1][1]))),(0, 255, 0) ,1)
+            cv2.circle(img_color,(int(round(point[2][0])), int(round(point[2][1]))), 2, (255, 0, 0), 2)
         
         print("C'è stata almeno una correzione")
 
@@ -764,7 +764,7 @@ def missed(row_coordinates, min_dist, img_color):
             dist_x = row_coordinates[i][0] - row_coordinates[i - 1][0]
             if (dist_x > 2 * min_dist):
                 check = True
-                m, q = regression_perform(row_coordinates)
+                m, q = regression_perform(row_coordinates, img_color)
                 p1 = row_coordinates[i - 1]
                 p2 = row_coordinates[i]
                 pm = mid_point(p1, p2) # trova le coordinate del punto medio
@@ -778,7 +778,7 @@ def missed(row_coordinates, min_dist, img_color):
     if check == True:
         
         for point in mid_points:
-            cv2.circle(img_color,(round(point[2][0]), round(point[2][1])), 2, (255, 0, 0), 2)
+            cv2.circle(img_color,(int(round(point[0])), int(round(point[1]))), 2, (255, 0, 0), 2)
        
         print("C'è stata almeno una correzione")
 
@@ -803,7 +803,9 @@ def alignment_counting(max_holes, min_dist):
         
         for i in range(0, 5):
             ret, frame = cap.read() #......................................................Legge il frame della videocamera
-        
+            cv2.imshow("Original", frame)
+            cv2.waitKey(1)
+            
         if counter % 10 == 0 :
             if ret == True:
                 thresholded_img, threshold_value = best_filtering(frame)
@@ -970,14 +972,14 @@ def pi_setup():
 
 # Funzione che fa oscillare velocemente la bobina mobile
 def assestamento_tensionamento():
-	posizione = pos[1]
-	for i in range(0,4):
-		posizione = posizione - 500
-		stepC(posizione, 1)
-		time.sleep(0.1)
-		posizione = posizione + 500
-		stepC(posizione, 1)
-		time.sleep(0.1)
+    posizione = pos[1]
+    for i in range(0,4):
+        posizione = posizione - 500
+        stepC(posizione, 1)
+        time.sleep(0.1)
+        posizione = posizione + 500
+        stepC(posizione, 1)
+        time.sleep(0.1)
 
 
 # Esegue le seguenti operazioni:
@@ -1048,8 +1050,9 @@ def start():
         tk.Label(message_frame, text="ALLINEAMENTO IN CORSO...").grid(row=0, column=0)
         
         stepC(20000, 1) # Posizionamneto bobina mobile
-        stepC(74400, 3) # Posizionamneto videocamera (da rivedere nel programma principale)
-        GPIO.output(bobina_mobile, GPIO.HIGH)
+        stepC(75400, 3) # Posizionamneto videocamera (da rivedere nel programma principale)
+        GPIO.output(bobina_mobile, GPIO.LOW)
+        time.sleep(0.5)
         assestamento_tensionamento()
         stepC(pos[1] + 1000, 1) # leggero pre-tensionamento maglia prima dell'allineamento
 
@@ -1087,6 +1090,7 @@ tk.Scale(objects_frame, label="FORZA TENSIONAMENTO (kg)", from_=0, to=200, bg="w
 tk.Button(objects_frame, text="CONFERMA PARAMETRI", command=setting, padx=98).grid(row=2, column=0) # pulsante conferma
  
 tk.mainloop()
+
 
 
 
