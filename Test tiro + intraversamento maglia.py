@@ -372,11 +372,11 @@ def video():
     thread.start()
 def start():
     contatore_tensionamento = pos[1]
-    contatore_tensionamento = contatore_tensionamento + 20000
+    contatore_tensionamento = contatore_tensionamento + 1600
     stepC(contatore_tensionamento,1)
     print(pos[1])
     contatore_video = pos[3]
-    contatore_video = contatore_video + 75400
+    contatore_video = contatore_video + 55600
     stepC(contatore_video,3)
     print(pos[3])
 
@@ -391,7 +391,7 @@ def switch_off():
     video()
 
 def distensione():
-    stepC(198, 0) # Distensione
+    stepC(195, 0) # Distensione
 
 def tensionamento():
     contatore_tensionamento = pos[1]
@@ -445,6 +445,16 @@ def assestamento_distensione():
         time.sleep(0.1)
         posizione = posizione + 15
         stepC(posizione, 0)
+        time.sleep(0.1)
+
+def assestamento_allineamento():
+    posizione = pos[2]
+    for i in range(0, 3):
+        posizione = posizione + 30
+        stepC(posizione, 2)
+        time.sleep(0.1)
+        posizione = posizione - 30
+        stepC(posizione, 2)
         time.sleep(0.1)
 
 def reset_alignment():
@@ -521,7 +531,7 @@ message_frame.grid(row=2, column=0)
 tk.Button(objects_frame, text="VIDEO ON", command=switch_on, font=helv36, padx=98).grid(row=0, column=0) # pulsante conferma
 tk.Button(objects_frame, text="VIDEO OFF", command=switch_off, font=helv36, padx=110).grid(row=1, column=0) # pulsante conferma
 tk.Button(objects_frame, text="ASSESTAMENTO TENSIONAMENTO", command=assestamento_tensionamento, font=helv36, padx=110).grid(row=2, column=0)
-tk.Button(objects_frame, text="ASSESTAMENTO DISTENSIONE", command=assestamento_distensione, font=helv36, padx=110).grid(row=3, column=0)
+tk.Button(objects_frame, text="ASSESTAMENTO ALLINEAMENTO", command=assestamento_allineamento, font=helv36, padx=110).grid(row=3, column=0)
 tk.Button(objects_frame, text="MAGLIA VERSO L'ALTO", command=up, font=helv36, padx=141).grid(row=4, column=0)
 tk.Button(objects_frame, text="MAGLIA VERSO IL BASSO", command=down, font=helv36, padx=141).grid(row=5, column=0)
 tk.Button(objects_frame, text="DISTENSIONE", command=distensione, font=helv36, padx=141).grid(row=6, column=0)
