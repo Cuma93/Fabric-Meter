@@ -41,14 +41,15 @@ def save_position(file_name, position):
     file.close()
 
 
-def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, numero identificativo motore)
+def stepC (stepfinal, puntatoreposizione): #...........................................(numero di step destinazione, numero identificativo motore)
     
     dirPin = dirP[puntatoreposizione]
     stepperPin = stepperP[puntatoreposizione]
     micro = microP[puntatoreposizione]
     dir=0
 
-    if (puntatoreposizione == 2):  # condizioni solo per il motore allineamento
+    # Condizioni solo per il motore allineamento
+    if (puntatoreposizione == 2):  
         if (stepfinal >= 0 and stepfinal <= 680):
             if(stepfinal>pos[puntatoreposizione]):
                 GPIO.output(dirPin, GPIO.HIGH)
@@ -71,10 +72,11 @@ def stepC (stepfinal, puntatoreposizione):    # (numero di step destinazione, nu
             if(puntatoreposizione == 2):
                 save_position("position.txt", pos[2])
             
-        else:    # se stepfinal < 0 steps o stepfinal > 680 steps
+        else: #.............................................................................se stepfinal < 0 steps o stepfinal > 680 steps
             print("WARNING! L'allineamento ha raggiunto il finecorsa.")
-        
-    else:     # condizioni per tutti gli altri motori
+
+    # Condizioni per tutti gli altri motori    
+    else:    
         
         if(stepfinal>pos[puntatoreposizione]):
             GPIO.output(dirPin, GPIO.HIGH)
@@ -287,11 +289,8 @@ def clear(object):
 def detect_hole(frame_gray):
     holes = hole_cascade.detectMultiScale(frame_gray, 1.2, 5) 
     frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
-    #print (len(holes))  # Stampa il numero di fori identificati
-    #print(holes)
     marker = 1
     marker2 = 1
-    
     coordinates = []
     x_holes = [] # lista delle cordinate X dei centri dei fori
     y_holes = [] # lista delle cordinate Y dei centri dei fori
@@ -330,15 +329,10 @@ def detect_hole(frame_gray):
 # Funzione che identifica i centri dei fori, li numera.
 def detect_hole_small(frame_gray, x_roi, l_roi, y_roi, h_roi):
     roi = frame_gray[y_roi:y_roi+h_roi, x_roi:x_roi+l_roi]
-    #cv2.imshow("roi", roi)
     holes = hole_cascade.detectMultiScale(roi, 1.1, 10) 
     frame_color = cv2.cvtColor(frame_gray, cv2.COLOR_GRAY2BGR)
-    #print (len(holes))  # Stampa il numero di fori identificati
-    #print(holes)
-    marker = 1
-    marker2 = 1
-    
-    coordinates = []
+    marker = 1 #........................................................................................................numera i fori
+    coordinates = [] #..................................................................................................vettore del tipo [[], [], ..., []]
     x_holes = [] # lista delle cordinate X dei centri dei fori
     y_holes = [] # lista delle cordinate Y dei centri dei fori
     for (x, y, w, h) in holes:  
@@ -353,8 +347,8 @@ def detect_hole_small(frame_gray, x_roi, l_roi, y_roi, h_roi):
 
     for (x, y) in sorted_coordinates:
         cv2.circle(frame_color,(int(x), int(y)), 2, (0, 0, 255), 2)  # disegna il centro dei fori
-        cv2.putText(frame_color, str(marker2), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2)    # Numera i fori
-        marker2 = marker2 + 1
+        cv2.putText(frame_color, str(marker), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,0,255),2) #.............stampa il numero dei fori
+        marker = marker + 1
     
     # Seleziona i primi punti
     confidence = np.mean([x[1] for x in sorted_coordinates]) * 0.15
@@ -371,45 +365,45 @@ def detect_hole_small(frame_gray, x_roi, l_roi, y_roi, h_roi):
     for (x, y) in starting_points_coord:
         cv2.circle(frame_color,(int(x), int(y)), 2, (255, 0, 0), 2) 
     
-    cv2.rectangle(frame_color,(x_roi, y_roi),(x_roi+l_roi, y_roi+h_roi), (0, 255, 0), 2)
+    cv2.rectangle(frame_color,(x_roi, y_roi),(x_roi+l_roi, y_roi+h_roi), (0, 255, 0), 2) #................evidenzia da regione di interesse (ROI)
 
     return coordinates, starting_points_coord, frame_color   # restiutisce le coordinate di tutti i punti e le coordinate dei primi punti a sx.
 
-# Funzione che restituisce il miglior valore di threshold per ogni immagine
+# Funzione che restituisce il miglior valore di threshold per l'immagine intera.
 def best_filtering(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     averaging = cv2.blur(gray, (22, 22))
     median = cv2.medianBlur(averaging, 25)
     
     threshold_record = []
-    for val in range(30, 170, 5):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
-        ret, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY)
-        holes_coordinates, _, color = detect_hole(threshold)  # holes_number è il numero dei fori identificati
-        threshold_record.append((val, len(holes_coordinates)))  # associa ad un valore di threshold, il corrispettivo numero di fori identificati
+    for val in range(30, 170, 5): #............................................prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
+        _, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY) #....applica il filtro threshold
+        holes_coordinates, _, _ = detect_hole(threshold) #.....................holes_number è il numero dei fori identificati
+        threshold_record.append((val, len(holes_coordinates))) #...............associa ad un valore di threshold, il corrispettivo numero di fori identificati
 
-    _, val = np.argmax(threshold_record, axis=0)  # trova l'indice dell'elemento con indice 1 comparato con tutti gli elementi con indice 1                                                           quindi il numero di fori trovati più alto.
-    best_threshold = threshold_record[val][0] # l'elemento con indice 0 più grande quindi il valore di threshold che corrisponde al numero                                                         più alto di fori trovato.
-    ret, thresholded_img = cv2.threshold(median, best_threshold, 255, cv2.THRESH_BINARY)
+    _, val = np.argmax(threshold_record, axis=0) #.............................trova l'indice dell'elemento con indice 1 comparato con tutti gli elementi con indice 1                                                           quindi il numero di fori trovati più alto.
+    best_threshold = threshold_record[val][0] #................................l'elemento con indice 0 più grande quindi il valore di threshold che corrisponde al numero                                                         più alto di fori trovato.
+    _, thresholded_img = cv2.threshold(median, best_threshold, 255, cv2.THRESH_BINARY)
     
-    return thresholded_img, best_threshold  # "thresholded_img" è l'immagine a cui è stato applicato "best_threshold"
+    return thresholded_img, best_threshold #..................................."thresholded_img" è l'immagine a cui è stato applicato "best_threshold"
 
-# Funzione che restituisce il miglior valore di threshold per ogni immagine
+# Funzione che restituisce il miglior valore di threshold per il settore selezionato dell'immagine.
 def best_filtering_sel(img, x_roi, l_roi, y_roi, h_roi):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     averaging = cv2.blur(gray, (22, 22))
     median = cv2.medianBlur(averaging, 25)
     
-    threshold_record = []
-    for val in range(30, 170, 10):   # prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
-        ret, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY)
-        holes_coordinates, _, color = detect_hole_small(threshold, x_roi, l_roi, y_roi, h_roi)  # holes_number è il numero dei fori identificati
-        threshold_record.append((val, len(holes_coordinates)))  # associa ad un valore di threshold, il corrispettivo numero di fori identificati
+    threshold_record = [] #...................................................................vettore [( , ), ... , ( , )]
+    for val in range(30, 170, 10): #..........................................................prova diversi valori di threshold. Itera sui valori di threshold predefiniti (scale)
+        _, threshold = cv2.threshold(median, val, 255, cv2.THRESH_BINARY) #...................applica il filtro threshold.
+        holes_coordinates, _, _ = detect_hole_small(threshold, x_roi, l_roi, y_roi, h_roi) #..identifica le coordinate dei punti nella regione di interesse
+        threshold_record.append((val, len(holes_coordinates))) #..............................associa ad un valore di threshold, il corrispettivo numero di fori identificati
 
-    _, val = np.argmax(threshold_record, axis=0)  # trova l'indice dell'elemento con indice 1 comparato con tutti gli elementi con indice 1                                                           quindi il numero di fori trovati più alto.
-    best_threshold = threshold_record[val][0] # l'elemento con indice 0 più grande quindi il valore di threshold che corrisponde al numero                                                         più alto di fori trovato.
-    ret, thresholded_img = cv2.threshold(median, best_threshold, 255, cv2.THRESH_BINARY)
+    _, val = np.argmax(threshold_record, axis=0) #............................................trova l'indice dell'elemento massimo con indice 1 comparato con tutti gli elementi con indice 1                                                           quindi il numero di fori trovati più alto.
+    best_threshold = threshold_record[val][0] #...............................................l'elemento con indice 0 massimo quindi il valore di threshold che corrisponde al numero                                                         più alto di fori trovato.
+    _, thresholded_img = cv2.threshold(median, best_threshold, 255, cv2.THRESH_BINARY) #......applica il threshold migliore all'immagine
     
-    return thresholded_img, best_threshold  # "thresholded_img" è l'immagine a cui è stato applicato "best_threshold"
+    return thresholded_img, best_threshold #.................................................."thresholded_img" è l'immagine a cui è stato applicato "best_threshold"
 
 
 # Funzione che restituisce l'immagine filtrata
@@ -417,7 +411,7 @@ def filtering(img, threshold_value):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     averaging = cv2.blur(gray, (22, 22))
     median = cv2.medianBlur(averaging, 25)
-    ret, thresholded_img = cv2.threshold(median, threshold_value, 255, cv2.THRESH_BINARY)
+    _, thresholded_img = cv2.threshold(median, threshold_value, 255, cv2.THRESH_BINARY)
     
     return thresholded_img
 
@@ -432,15 +426,15 @@ def regression(points_coordinates):
         coordinates_x.append(x)
         coordinates_y.append(y)
 
-    x = np.array(coordinates_x)  # creiamo un array delle coordinate x della fascia di controllo 
-    y = np.array(coordinates_y)  # creiamo un array delle coordinate y della fascia di controllo
+    x = np.array(coordinates_x) #............................................creiamo un array delle coordinate x della fascia di controllo 
+    y = np.array(coordinates_y) #............................................creiamo un array delle coordinate y della fascia di controllo
 
-    points_in_band = []  # numero di punti rilevati in ogni riga
+    points_in_band = [] #....................................................numero di punti rilevati in ogni riga [, , ... ,]
     
     if len(coordinates_x) > 1: # se nella fascia sono presenti almeno 2 punti
         # Creazione della fascia di filtraggio
-        lim_inf = np.median(y) - 2 * np.std(y)  # il parametro può variare (1 filtro stretto - 3 filtro largo)
-        lim_sup = np.median(y) + 2 * np.std(y)
+        lim_inf = np.median(y) - 2 * np.std(y) # il parametro può variare (1 filtro stretto - 3 filtro largo)
+        lim_sup = np.median(y) + 2 * np.std(y) # il parametro può variare (1 filtro stretto - 3 filtro largo)
         
         filtred_x = []
         filtred_y = []
@@ -466,42 +460,44 @@ def regression(points_coordinates):
 
 
 def regression_perform(points_coordinates, img):
-    c = np.array(points_coordinates) #......Trasforma il vettore in una matrice
+    c = np.array(points_coordinates) #.....................................................Trasforma il vettore in una matrice
     coord = c[np.lexsort(np.transpose(c)[::-1])]
-    x = np.transpose(coord)[0] # divide il vettore di coordinate per ottenere il vettore delle x
-    y = np.transpose(coord)[1] # divide il vettore di coordinate per ottenere il vettore delle y
+    x = np.transpose(coord)[0] #...........................................................Divide il vettore di coordinate per ottenere il vettore delle x
+    y = np.transpose(coord)[1] #...........................................................Divide il vettore di coordinate per ottenere il vettore delle y
 
-    ## Filtraggio dei punti outliers che non appartengono alla linea serie di boccole allineate
+    ## Filtraggio dei punti outliers che non appartengono alla linea di boccole
     # Creazione della fascia di filtraggio
-    lim_inf = np.median(y) - 2 * np.std(y)  # il parametro può variare (1 filtro stretto - 3 filtro largo)
-    lim_sup = np.median(y) + 2 * np.std(y) 
+    lim_inf = np.median(y) - 2 * np.std(y) #...............................................Il parametro può variare (1 filtro stretto - 3 filtro largo)
+    lim_sup = np.median(y) + 2 * np.std(y) #...............................................Il parametro può variare (1 filtro stretto - 3 filtro largo) 
 
-    filtred = []
+    filtred = [] #.........................................................................[[ , ], ... , [ , ]]
     for x, y in coord:
         
         if (y > lim_inf) and (y < lim_sup): 
             filtred.append([x, y])
 
-    filtred_x = np.transpose(filtred)[0] # divide il vettore di coordinate per ottenere il vettore delle x
-    filtred_y = np.transpose(filtred)[1] # divide il vettore di coordinate per ottenere il vettore delle y
+    filtred_x = np.transpose(filtred)[0] #.................................................divide il vettore di coordinate per ottenere il vettore delle x
+    filtred_y = np.transpose(filtred)[1] #.................................................divide il vettore di coordinate per ottenere il vettore delle y
     res = stats.linregress(filtred_x, filtred_y)
 
+    # Disegna la linea di regressione
     # N.B.: y = m*x + q    (m = slope, q = intercept)
-    p1 = (0, round(res.slope*0 + res.intercept))
+    p1 = (0, round(res.slope*0 + res.intercept)) 
     p2 = (800, round(res.slope*800 + res.intercept))
-    cv2.line(img,(int(p1[0]), int(p1[1])) , (int(p2[0]), int(p2[1])),(0, 255, 0) ,2)  # linea regressione
+    cv2.line(img,(int(p1[0]), int(p1[1])) , (int(p2[0]), int(p2[1])),(0, 255, 0) ,2) #.....linea regressione
     
-    return round(res.slope, 3), res.intercept
+    return round(res.slope, 3), res.intercept #............................................restituisce il coeffieciente angolare e il termine noto della linea di regressione
 
 
-# Funzione che prende un immagine in ingresso, coordinate dei fori, coordinate del primo foro di ogni riga e restituisce quanti fori ci devono essere per ogni riga. 
+# Prende in ingresso vettore coordinate dei fori, vettore coordinate dei primi fori di ogni riga e l'immagine. 
+# Restituisce quanti fori ci sono per ogni riga. Ogni riga è definita dal primo punto. 
 def check_lines(holes_coordinates, first_holes_coordinates, img_color):
-    sorted_first_coordinates = sorted(first_holes_coordinates, key=lambda x: (x[1],x[0]))  # ordina le coordinate secondo la y. 
-    height, width = img_color.shape[0:2]
+    sorted_first_coordinates = sorted(first_holes_coordinates, key=lambda x: (x[1],x[0])) #..ordina le coordinate secondo la y. 
+    height, width = img_color.shape[0:2] #...................................................restituisce la dimensione del frame
     
-    # Trova i limiti delle fasce di controllo di ogni riga 
+    # Trova i limiti delle fasce di controllo di ogni riga. Setta una linea y ponendola a metà tra la distanza y tra due punti in testa.
     band_limits = []
-    for i, el in enumerate(sorted_first_coordinates):
+    for i, _ in enumerate(sorted_first_coordinates):
         
         if (i == 0):
             lim_sup = 0
@@ -518,20 +514,20 @@ def check_lines(holes_coordinates, first_holes_coordinates, img_color):
             lim_inf = height
             band_limits.append((lim_sup, lim_inf))
 
-    total_coordinates = []  # array di coordinate dei punti nelle fascia di controllo della singola immagine (inutile)
+    total_coordinates = []  # array di coordinate dei punti nelle fascia di controllo della singola immagine (inutile) [[[ , ], ..., [ , ]], ... , [[ , ], ..., [ , ]]]
     number_of_points = []   # array dei numeri di punti trovati in ogni 
     for i, (sup, inf) in enumerate(band_limits):
         cv2.line(img_color,(0, int(round(sup))) , (width, int(round(sup))),(0, 255, 0) ,1)  # limite superiore
         cv2.line(img_color,(0, int(round(inf))) , (width, int(round(inf))),(0, 255, 0) ,1)  # limite inferiore
         
-        band_coordinates = []  # salva le coordinate dei punti nella fascia di controllo
+        band_coordinates = [] #...........................................................salva le coordinate dei punti nella fascia di controllo [[ , ], ... , [ , ]]
         for (x, y) in holes_coordinates:
             if (y < inf) and (y > sup):
                 band_coordinates.append([x, y])
 
-        band_coordinates_sorted = sorted(band_coordinates, key=lambda x: (x[0],x[0]))  # ordina le coordinate nella fascia secondo le x
+        band_coordinates_sorted = sorted(band_coordinates, key=lambda x: (x[0],x[0])) #...ordina le coordinate nella fascia secondo le x
         points_in_band, filtred_coordinates = regression(band_coordinates_sorted)
-        number_of_points = number_of_points + points_in_band       # aggiunge il numero di punti trovati su ogni riga
+        number_of_points = number_of_points + points_in_band #............................aggiunge il numero di punti trovati su ogni riga
         total_coordinates.append(filtred_coordinates)
 
     return img_color, number_of_points, total_coordinates
@@ -559,7 +555,7 @@ def frequency(my_list):
 # Output: vettore distanze tra ogni coppia di fori contigui, mediana delle distanze e distanza minima rilevata.
 def distance_x(array, max_points):
     
-    distances = []
+    distances = [] # vettore di coordinate di tutti i punti di tutte le righe di tutte le immagini  [[[[ , ], ...], ...], ...]
     for image in array:
         
         for line in image:
@@ -580,8 +576,8 @@ def distance_x(array, max_points):
 
     return distances, np.median(distances), min_dist
 
+# Funzione per la caratterizzazione del tessuto
 def recognition():
-
     global hole_cascade
     hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
     
@@ -597,25 +593,21 @@ def recognition():
         
         if ret == True:
             cv2.imshow('preview',frame) #..............................................Output immagine che deve essere salvata
-            #cv2.imwrite('/home/pi/Desktop/campionamento/black/capture_test_2/' + str(i+1) + '.jpg', frame)
             images.append(frame)  #....................................................Aggiunge le immagini all'array per la successiva elaborazione
             count = count + 1
             time.sleep(0.75)
             cv2.waitKey(1)
-        
-        
+    
         else:
             print("WARNING! Non arriva il segnale dalla videocamera.")
     
-    cv2.destroyWindow('preview') #.....................................................Chiude la vinestra di visualizzazione immagini
+    cv2.destroyWindow('preview') #.....................................................Chiude la finestra di visualizzazione immagini
     
-    
+    # elaborazione delle immagini salvate
     total_coordinates = []
     detecting = []
-    times = []
     total_points = []
     for i, img in enumerate(images):  # richiama la singola immagine salvata nel vettore per l'elaborazione
-        start = time.time()
         img_gray, threshold_used = best_filtering(img)
         holes_coordinates, first_holes_coordinates, img_color = detect_hole(img_gray)
         detecting.append(len(holes_coordinates))
@@ -626,8 +618,8 @@ def recognition():
         cv2.imshow("Original Image", img)
         cv2.imshow("AI comput", image)
         cv2.waitKey(1)
+        
         # Progress bar. 
-        # Questo pezzo di codice va inserito nel punto in cui si vuole aggiornare la progress bar.
         b = (i + 1) * 100 / len(images)  # valore da incrementare sulla barra ad ogni ciclo di immagine.
         progress_bar['value'] = b 
         objects_frame.update_idletasks()
@@ -761,15 +753,13 @@ def middleR_perform(img, coordinates, Y_max, Y_min):
         second = selected_coord_sorted[1]
         secondLast = selected_coord_sorted[len(selected_coord_sorted) - 2]
         last = selected_coord_sorted[len(selected_coord_sorted) - 1]
-        
+
+        # Evidenzia i punti
         cv2.circle(img,(int(first[0]), int(first[1])), 5, (0, 0, 255), 2) #..............................Evidenzia il primo foro della riga
         cv2.circle(img,(int(second[0]), int(second[1])), 5, (0, 102, 204), 2) #............................Evidenzia il secondo foro della riga
-        #cv2.circle(img,(int(secondLast[0]), int(secondLast[1])), 5, (0, 204, 204), 2) #..................Evidenzia il penultimo foro della riga
-        #cv2.circle(img,(int(last[0]), int(last[1])), 5, (0, 255, 255), 2) #................................Evidenzia l'ultimo foro della riga
         
         # Disegna il range di controllo
         cv2.line(img,(0, int(Y_max)) , (width, int(Y_max)),(255, 0, 255) ,1) #.............Linea superiore
-        #cv2.line(img,(0, int(y_circle)) , (width, int(y_circle)),(255, 50, 255) ,1) #........Linea di mezzeria
         cv2.line(img,(0, int(Y_min)) , (width, int(Y_min)),(255, 0, 255) ,1) #.............Linea inferiore
         
     return first, second, secondLast, last, selected_coord_sorted
@@ -777,11 +767,14 @@ def middleR_perform(img, coordinates, Y_max, Y_min):
 # Funzione che indica di quanto deve essere l'ultimo spostamento di videocamera
 def last_shift(row_coordinates, max_holes, min_dist):
     min_dist_feeding = round(min_dist * 3.19444444444) # trasforma min_dist da pixel a steps
+    
     for i in range(max_holes, 0, -1):
         distance_x = row_coordinates[i][0] - (640 / (max_holes * 2))
         feeding_video = round(distance_x * 3.19444444444)
+        
         if ((pos[3] - feeding_video) > (600 - min_dist_feeding/2) and (pos[3] - feeding_video) < 600 + (min_dist_feeding/2)):
             break
+    
     return distance_x
     
 # Funzione che calcola il punto medio di due coordinate cartesiane. 
@@ -790,7 +783,7 @@ def mid_point(p1, p2):
     pm = [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
     return pm
 
-# Individua a video i fori contati due volte e li corregge.
+# Individua a video i fori contati due volte e li corregge (non utilizzato)
 def doubled(row_coordinates, min_dist, img_color):
     check = False
     mid_points = []
@@ -819,7 +812,7 @@ def doubled(row_coordinates, min_dist, img_color):
 
     return check, row_coordinates
 
-# Individua a video i fori contati due volte e li corregge.
+# Individua a video i fori contati due volte e li corregge (non utilizzato)
 def missed(row_coordinates, min_dist, img_color):
     #height, width = img_color.shape[0:2]
     check = False
@@ -850,29 +843,27 @@ def missed(row_coordinates, min_dist, img_color):
 
     return check, corrected_coordinates
 
+# Funzione di allineamento e conteggio (il conteggio è da sistemare perchè mancano le correzioni funzionanti per punto doppio e punto mancante)
 def first_alignment(max_holes, min_dist):
     global hole_cascade
     hole_cascade = cv2.CascadeClassifier('/home/pi/Desktop/Fabric-Meter/hole classifier 2.0/classifier/hole_cascade_2.0.xml')
     state_check = False
-    
-    aligner_position_counter = pos[2]
-    video_position_counter = pos[3]
-    feeding_times = 0
+    aligner_position_counter = pos[2] #..................................................Posizione dell'allineamento
+    video_position_counter = pos[3] #....................................................Posizione della videocamera
     cycle_iterator = 0 #.................................................................Contatore di cicli
     holes_counter = 0
     counter = 0
-    counter_return = [pos[3]/5]
     aligner = 5 # step del motore verticale per l'allinemanto
     counter_return = []
     sectors_return = 5
+    
     # Crea il vettore che divide la corsa di ritorno della videocamera in 5 settori.
-    for i in range(sectors_return-1, 0, -1):
+    counter_return = []
+    for i in range(sectors_return, 0, -1):
         counter_return.append((pos[3]/sectors_return*i))
         
     while (GPIO.input(proxy_videocamera) == True):
-        
         cycle_iterator = cycle_iterator + 1 
-        
         center_needles = 480/2 #..............................................Settaggio del centro delle bobine in direz. verticale
             
         if (cycle_iterator == 1):
@@ -890,12 +881,13 @@ def first_alignment(max_holes, min_dist):
                 ret, frame = cap.read() #......................................................Legge il frame della videocamera
                 cv2.imshow("Original", frame)
                 cv2.waitKey(1)             
-            
-        if counter % 10 == 0 : # Ogni 10 cicli aggiorna il threshold
+        
+        # Ogni 10 cicli aggiorna il threshold altrimenti applica un filtraggio semplice senza best_threshold
+        if counter % 10 == 0 : 
             
             if ret == True:
-                thresholded_img, threshold_value = best_filtering_sel(frame, 0, 500, 160, 160)
-                coordinates, _, frame_color = detect_hole_small(thresholded_img, 0, 500, 160, 160)
+                thresholded_img, threshold_value = best_filtering_sel(frame, 0, 500, 160, 160) # best filtering su una regione di interesse
+                coordinates, _, frame_color = detect_hole_small(thresholded_img, 0, 500, 160, 160) # detecting su una regione di interesse
                 first_point, _, _, _, sorted_coord = middleR_perform(frame_color, coordinates, sup_lim, inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
                 sup_lim = first_point[1] - 45 #............................................Limite superiore fascia di controllo secondaria
                 inf_lim = first_point[1] + 45 #............................................Limite inferiore fascia di controllo secondaria
@@ -904,8 +896,8 @@ def first_alignment(max_holes, min_dist):
         else:
             
             if ret == True:
-                simple_thresholded_img = filtering(frame, threshold_value)
-                coordinates, starting_points_coord, frame_color = detect_hole_small(simple_thresholded_img, 0, 500, 160, 160)
+                simple_thresholded_img = filtering(frame, threshold_value) # filtraggio su una regione di interesse
+                coordinates, _, frame_color = detect_hole_small(simple_thresholded_img, 0, 500, 160, 160) # detecting su una regione di interesse
                 first_point, _, _, _, sorted_coord = middleR_perform(frame_color, coordinates, sup_lim, inf_lim) # Restituisce il vettore di punti nella fascia di controllo e le coordinate dei punti ordinati
                 sup_lim = first_point[1] - 45 #............................................Limite superiore fascia di controllo secondaria
                 inf_lim = first_point[1] + 45 #............................................Limite inferiore fascia di controllo secondaria
@@ -920,17 +912,15 @@ def first_alignment(max_holes, min_dist):
         if (cycle_iterator == 1): # setta il range di controllo solo al primo richiamo della funzione (quindi al primo frame).
             
             for i in range(0, 10):
-                cv2.imshow("Alignment", frame_color)
-                cv2.waitKey(1)
-                                          
+                cv2.imshow("Alignment", frame_color); cv2.waitKey(1)
+                                           
             # Limiti della fascia di controllo iniziale (definite solo al primo ciclo)
             Y_max = center_needles - 10   
             Y_min = center_needles + 10
             
             for i in range(0, 5):
-                cv2.imshow("Alignment", frame_color)
-                cv2.waitKey(1)
-            
+                cv2.imshow("Alignment", frame_color); cv2.waitKey(1)
+                
         cv2.line(frame_color,(0, round(Y_max)) , (640, round(Y_max)),(0, 255, 255) ,1)  # linea superiore
         cv2.line(frame_color,(0, round(Y_min)) , (640, round(Y_min)),(0, 255, 255) ,1)  # linea inferiore
         
@@ -939,8 +929,8 @@ def first_alignment(max_holes, min_dist):
             for i in range(0, 5):
                 cv2.imshow("Alignment", frame_color); cv2.waitKey(1)
            
-           # Adatta aligner (avanzamento del motore verticale per l'allineamento), in base alla posizione della corsa
-                
+           # Adatta aligner (avanzamento del motore verticale per l'allineamento), in base alla posizione della corsa. 
+           # Più ci avviciniamo allo zero e più lo spostamento vericale diminuisce
             if pos[3] < counter_return[0]:
                 aligner = 4
             if pos[3] < counter_return[1] and pos[3] > counter_return[2]:
@@ -950,40 +940,30 @@ def first_alignment(max_holes, min_dist):
             if pos[3] < counter_return[3]:
                 aligner = 1
             print(aligner)
-                
+            
+            # Se il punto è sotto il limite inferiore di allineamento
             if (second_point[1] <= Y_max):  # second_point
-                #print("Il secondo punto è sotto il limite")
-                #print("Quota Y punto: " + str(second_point[1]))
-                #print("Limite: " + str(Y_max))
                 aligner_position_counter = aligner_position_counter + aligner 
                 stepC(aligner_position_counter, 2)
                 counter = counter + 1
-                    
+            
+            # Se il punto è sopra il limite superiore di allineamento
             if (second_point[1] >= Y_min):
-                #print("Il secondo punto è sopra il limite")
-                #print("Quota Y punto: " + str(second_point[1]))
-                #print("Limite: " + str(Y_min))
                 aligner_position_counter = aligner_position_counter - aligner
                 stepC(aligner_position_counter, 2)
                 counter = counter + 1
 
-                
+            # Se il punto è all'interno del limite di allineamento 
             if (second_point[1] > Y_max and second_point[1] < Y_min):
-                #print("Il secondo punto è dentro il limite")
-                #print("Quota Y punto: " + str(second_point[1]))
-                #print("Limite inf: " + str(Y_min))
-                #print("Limite sup: " + str(Y_max))
                 distance_x = second_point[0] - (640 / (max_holes * 2)) #.......Distanza x tra la posizione reale e quella ideale in cui si vuole portare il primo punto a sx. 
                 feeding_video = round(distance_x * 3.19444444444)
                 video_position_counter = video_position_counter - feeding_video
-                feeding_times = feeding_times + 1
-                holes_counter = holes_counter + 1
+                holes_counter = holes_counter + 1 
                 print("Numero fori aggiornato:" + str(holes_counter))
                 print(pos[3])
                 stepC(video_position_counter, 3)
                 counter = 0
 
-    
     state_check = True
     
     return state_check
@@ -1128,9 +1108,6 @@ def setting():
 # Esegue le seguenti operazioni:
 # - esegue caratterizzazione e restituisce: max_points, min_dist e True
 # - esegue allineamento e restituisce: True
-# - esegue conteggio e aggancia
-# - esegue tiraggio restituisce: parametro
-# - sgancio e rimozione
 def start():
     if (check_setting == True):
         clear(objects_frame)
@@ -1152,11 +1129,6 @@ def start():
         clear(message_frame)
         tk.Label(message_frame, text="RICONOSCIMENTO COMPLETATO").grid(row=0, column=0)
         progress_bar['value'] = 0
-        
-        '''for i in range(0, 100, 1):
-            progress_bar['value'] = i
-            objects_frame.update_idletasks() 
-            time.sleep(0.01)'''
         
         if check_recognition == True:
             clear(message_frame)
